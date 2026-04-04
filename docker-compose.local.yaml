@@ -1,0 +1,44 @@
+x-build: &base-build
+  build:
+    context: ./
+    dockerfile: Dockerfile
+    args:
+      ENVIRONMENT: local
+
+x-env: &base-env
+  env_file:
+    - .envs/local/api.env
+    - .envs/local/db.env
+
+x-volumes: &base-volumes
+  user: "${UID}:${GID}"
+  volumes:
+    - ./:/code
+
+services:
+
+
+  postgres:
+    image: postgres:18.3
+    container_name: incubyte_salary_management_backend_service_postgres
+    env_file:
+      - .envs/local/db.env
+    volumes:
+      - incubyte_salary_management_backend_service_postgres_volume:/var/lib/postgresql/
+
+  server:
+    <<: [*base-build, *base-env, *base-volumes]
+    container_name: incubyte_salary_management_backend_service_api
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    restart: always
+    depends_on:
+      - postgres
+  
+
+
+
+
+
+volumes:
+  incubyte_salary_management_backend_service_postgres_volume:
