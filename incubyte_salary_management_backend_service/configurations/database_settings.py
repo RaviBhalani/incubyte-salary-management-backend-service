@@ -14,6 +14,3 @@ postgres_settings = {
     "HOST": POSTGRES_HOST,
     "PORT": POSTGRES_PORT
 }
-
-
-

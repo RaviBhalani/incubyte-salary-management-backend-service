@@ -1,7 +1,9 @@
 from datetime import timedelta
 from os.path import join
+
 from .common_settings import BASE_DIR
 from .env_helpers import get_int_env_var, get_env_var
+
 
 ACCESS_TOKEN_EXPIRY_DAYS = get_int_env_var("ACCESS_TOKEN_EXPIRY_DAYS")
 ACCESS_TOKEN_EXPIRY_MINUTES = get_int_env_var("ACCESS_TOKEN_EXPIRY_MINUTES")

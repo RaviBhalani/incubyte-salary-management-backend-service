@@ -1,30 +1,23 @@
 # Django & Django Rest Framework
-Django==5.2.9
-django-cors-headers==4.7.0
-django-filter==25.1
+Django==6.0
+django-cors-headers==4.9.0
+django-filter==25.2
 django-storages==1.14.6
-djangorestframework==3.16.1
+djangorestframework==3.17.1
 djangorestframework-simplejwt[crypto]==5.5.1
-drf-spectacular==0.28.0
-drf-yasg==1.21.10
+drf-spectacular==0.29.0
+drf-yasg==1.21.15
 drf-writable-nested==0.7.2
-django-import-export==4.3.9
+django-import-export==4.4.0
 
-psycopg[binary]==3.2.9
-
-
-
-
-
-
-# AWS
-boto3==1.40.14
+# PostgreSQL
+psycopg[binary]==3.3.3
 
 # Deployment
-gunicorn==23.0.0
+gunicorn==25.3.0
 
 # Miscellaneous
-pre-commit==4.3.0
+pre-commit==4.5.1
 
 # url builder
 yarl==1.23.0

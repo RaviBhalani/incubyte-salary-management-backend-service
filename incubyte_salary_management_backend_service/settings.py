@@ -1,21 +1,12 @@
 from os.path import join
-from .configurations.common_settings import BASE_DIR
+
+from .configurations.common_settings import BASE_DIR, APP_TITLE
+from .configurations.database_settings import postgres_settings
 from .configurations.env_helpers import get_env_var, get_bool_env_var, get_list_env_var, get_int_env_var
-from .configurations.logger_settings import LOGGING
-from .configurations.spectacular_settings import SPECTACULAR_SETTINGS
-from .configurations.rest_framework_settings import REST_FRAMEWORK
 from .configurations.jwt_settings import SIMPLE_JWT
-from .configurations.aws_settings import *
-from .configurations.database_settings import (
-
-    postgres_settings,
-
-
-    
-
-)
-
-
+from .configurations.logger_settings import LOGGING
+from .configurations.rest_framework_settings import REST_FRAMEWORK
+from .configurations.spectacular_settings import SPECTACULAR_SETTINGS
 
 """ 
 Application Definition Start.
@@ -43,7 +34,6 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "import_export",
     "drf_spectacular",
-    
     "rest_framework_simplejwt.token_blacklist",
 ]
 
@@ -52,7 +42,6 @@ PROJECT_APPS = [
 ]
 
 INSTALLED_APPS = CORE_APPS + PROJECT_APPS + THIRD_PARTY_APPS
-
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -99,12 +88,7 @@ Application Definition End.
 Database Settings Start.
 """
 
-DATABASES = {
-
-    "default": postgres_settings,
-
-
-}
+DATABASES = {"default": postgres_settings}
 
 """ 
 Database Settings End.
@@ -147,6 +131,26 @@ USE_TZ = True
 
 """
 Internationalization Settings End.
+"""
+
+
+"""
+Static Files Settings Start.
+"""
+
+STATIC_URL = "/static/"
+STATIC_ROOT = join(BASE_DIR, "staticfiles")
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+"""
+Static Files Settings End.
 """
 
 
