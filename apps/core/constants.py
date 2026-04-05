@@ -48,7 +48,6 @@ Constants for APP Names starts
 """
 
 CORE_APP = "apps.core"
-USER_APP = "apps.user"
 
 """
 Constants for APP Names ends
