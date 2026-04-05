@@ -19,36 +19,55 @@ class UserDetailsAdmin(UserAdmin):
             {
                 "fields": (
                     "email",
-                    "first_name",
                     "password",
-
                 )
             },
         ),
         (
-            "Permissions",
-            {"fields": ("email_verified", "is_active", "is_staff", "is_superuser")},
+            "Personal info",
+            {"fields": ("first_name", "last_name")},
         ),
-        ("Groups", {"fields": ("groups",)}),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                )
+            },
+        ),
+        (
+            "Important dates",
+            {"fields": ("last_login", "date_joined")},
+        ),
     )
 
     add_fieldsets = (
-        (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "first_name", "last_name", "password1", "password2"),
+            },
+        ),
     )
 
     list_display = (
         "id",
         "email",
         "first_name",
-        "email_verified",
+        "last_name",
+        "is_staff",
+        "is_superuser",
         "is_active",
-        "created_ts",
-        "modified_ts",
     )
-    list_filter = ("is_superuser",
-
-                   )
-    search_fields = ("email", "first_name")
+    list_filter = ("is_active", "is_staff", "is_superuser", "groups")
+    search_fields = ("email", "first_name", "last_name")
     ordering = ("email",)
+    readonly_fields = ("last_login", "date_joined")
+    filter_horizontal = ("groups", "user_permissions")
 
 admin.site.register(User, UserDetailsAdmin)
