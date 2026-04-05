@@ -10,6 +10,12 @@ x-env: &base-env
     - .envs/prod/api.env
     - .envs/prod/db.env
 
+x-volumes: &base-volumes
+  user: "${UID}:${GID}"
+  volumes:
+    - ./:/code
+
+
 services:
 
   postgres:
@@ -21,7 +27,7 @@ services:
       - incubyte_salary_management_backend_service_postgres_volume:/var/lib/postgresql/
 
   server:
-    <<: [*base-build, *base-env]
+    <<: [*base-build, *base-env, *base-volumes]
     container_name: incubyte_salary_management_backend_service_api
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
