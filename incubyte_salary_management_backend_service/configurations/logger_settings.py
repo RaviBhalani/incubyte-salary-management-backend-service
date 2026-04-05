@@ -1,6 +1,8 @@
 from os.path import join
+
 from .common_settings import BASE_DIR
 from .env_helpers import get_env_var, get_int_env_var
+
 
 LOG_MAX_FILE_SIZE = get_int_env_var("LOG_MAX_FILE_SIZE")
 LOG_LEVEL = get_env_var("LOG_LEVEL")

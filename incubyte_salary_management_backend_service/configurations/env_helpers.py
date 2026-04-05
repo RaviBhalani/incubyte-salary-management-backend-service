@@ -1,7 +1,6 @@
 from os import getenv
 
 
-
 def get_bool_env_var(key):
     val = getenv(key) 
     val = val.lower()
@@ -12,9 +11,9 @@ def get_bool_env_var(key):
     else:
         raise ValueError(f"Invalid truth value: {val}")
 
+
 def get_env_var(key):
     return getenv(key)
-
 
 
 def get_list_env_var(key):
@@ -23,6 +22,7 @@ def get_list_env_var(key):
 
 def get_int_env_var(key):
     return int(getenv(key))
+
 
 def get_float_env_var(key):
     return float(getenv(key))
