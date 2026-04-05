@@ -10,11 +10,24 @@ App constants end.
 
 
 """
+URL constants start.
+"""
+
+LOGIN_URL = "login/"
+LOGIN_NAME = "token_obtain_pair"
+
+TOKEN_REFRESH_URL = "token-refresh/"
+TOKEN_REFRESH_NAME = "token_refresh"
+
+"""
+URL constants end.
+"""
+
+
+"""
 Message constants start.
 """
 
-USER_DOES_NOT_EXIST = "User Does not exists"
-NO_ACTIVE_ACCOUNT_FOUND = "No active account found with the given credentials"
 PASSWORDS_DO_NOT_MATCH = "Passwords don't match"
 
 """
