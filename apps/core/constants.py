@@ -1,13 +1,21 @@
-from enum import Enum
+"""
+Environments start.
+"""
 
+LOCAL = 'local'
+DEV = 'dev'
+TEST = 'test'
+PROD = 'prod'
 
-class PermissionActionName(Enum):
-    ALL_OBJECTS = "all objects"
+"""
+Environments end.
+"""
 
 
 """
 Constants for custom_exception_handler start
 """
+
 THROTTLE_EXEC_DETAILS = "request limit exceeded available in %d seconds"
 NOT_FOUND_EXEC_DETAILS = "Item Not Found"
 VALIDATION_EXEC_DETAILS = "Validation Error"
@@ -18,23 +26,30 @@ AUTHENTICATION_FAILED_EXEC_DETAILS ="Authentication failed"
 METHOD_NOT_ALLOWED_EXEC_DETAILS = "Method Not Allowed"
 
 API_EXC_DEFAULT_CODE = "error"
+
 """
 Constants for custom_exception_handler ends
 """
 
+
 """
 Constants for logger_mixin start
 """
+
 ANONYMOUS = "Anonymous"
+
 """
 Constants for logger_mixin ends
 """
 
+
 """
 Constants for APP Names starts
 """
+
 CORE_APP = "apps.core"
 USER_APP = "apps.user"
+
 """
 Constants for APP Names ends
 """
@@ -55,6 +70,7 @@ DESTROY = 'destroy'
 API methods end.
 """
 
+
 """
 Constants for pagination settings starts
 """
@@ -66,18 +82,22 @@ MAX_PAGE_SIZE = 200
 Constants for pagination settings ends
 """
 
+
 """
 Constants for Teams integration starts
 """
+
 TEAMS_MESSAGE_TYPE = "message"
 TEAMS_CONTENT_TYPE = "application/vnd.microsoft.card.adaptive"
 TEAMS_CARD_TYPE = "AdaptiveCard"
 TEAMS_BLOCK_TYPE = "TextBlock"
 TEAMS_SCHEMA = "http://adaptivecards.io/schemas/adaptive-card.json"
 TEAMS_CARD_VERSION = "1.0"
+
 """
 Constants for Teams integration ends
 """
+
 
 """
 Constants for API client starts
@@ -98,14 +118,17 @@ HTTP_REQUEST_BODY_MIME_TYPE = "application/x-www-form-urlencoded"
 Constants for API client ends
 """
 
+
 """
 HTTP methods start.
 """
+
 GET = 'get'
 POST = 'post'
 PUT = 'put'
 PATCH = 'patch'
 DELETE = 'delete'
+
 """
 HTTP methods end.
 """
