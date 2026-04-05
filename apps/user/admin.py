@@ -1,11 +1,8 @@
-from apps.user.forms import UserDetailsChangeForm, UserDetailsCreationForm
-from apps.user.models import (
-    User
-    )
-
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from import_export.admin import ImportExportModelAdmin
+
+from apps.user.forms import UserDetailsChangeForm, UserDetailsCreationForm
+from apps.user.models import User
 
 
 class UserDetailsAdmin(UserAdmin):
@@ -53,8 +50,5 @@ class UserDetailsAdmin(UserAdmin):
                    )
     search_fields = ("email", "first_name")
     ordering = ("email",)
-
-
-
 
 admin.site.register(User, UserDetailsAdmin)

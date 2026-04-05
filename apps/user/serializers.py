@@ -1,17 +1,11 @@
 from django.contrib.auth.models import update_last_login
-from rest_framework_simplejwt.settings import api_settings
-from rest_framework import exceptions, serializers, status
-from rest_framework.serializers import ModelSerializer
 from django.core.validators import validate_email
+from rest_framework import serializers
+from rest_framework_simplejwt.settings import api_settings
+
+from apps.user.constants import USER_DOES_NOT_EXIST, NO_ACTIVE_ACCOUNT_FOUND
 from apps.user.models import User
 from apps.user.utils import get_tokens_for_user
-
-from apps.user.constants import (
-    EMAIL_REQUIRED,
-    USER_DOES_NOT_EXIST,
-    NO_ACTIVE_ACCOUNT_FOUND,
-
-)
 
 
 class TokenObtainPairSerializer(serializers.Serializer):
@@ -37,47 +31,3 @@ class TokenObtainPairSerializer(serializers.Serializer):
                 NO_ACTIVE_ACCOUNT_FOUND,
             )
         return data
-
-
-class UserListSerializer(ModelSerializer):
-    """
-    serializer to list users
-    """
-    
-    class Meta:
-        model = User
-        fields = (
-            "id",
-            "first_name",
-            "middle_name",
-            "last_name",
-            "email",
-            
-        )
-
-
-class UserSerializer(ModelSerializer):
-    """
-    Serializer for Role Model
-    """
-    class Meta:
-        model = User
-        fields = "__all__"
-
-    def create(self, validated_data):
-        """
-        custom create method override for user post request
-        """
-        
-        user = User.objects.create(**validated_data)
-        
-        user.save()
-        return user
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep.update(instance.to_representation())
-        return rep
-
-
-

@@ -1,22 +1,17 @@
-from apps.core.models import Timestamps
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from apps.user.constants import (
-    DEFAULT_NAME_FIELD_MAX_LENGTH,
-    PERMISSION_SUB_NAME_MAX_LENGTH,
-    PERMISSION_DESCRIPTION_MAX_LENGTH,
-    ROLE_NAME_MAX_LENGTH
-)
 
+from apps.core.models import Timestamps
+from apps.user.constants import (
+    DEFAULT_NAME_FIELD_MAX_LENGTH
+)
 from apps.user.constants import (
     FIRST_NAME_USER_HELP_TEXT,
     MIDDLE_NAME_USER_HELP_TEXT,
     LAST_NAME_USER_HELP_TEXT,
     EMAIL_HELP_TEXT,
-    ROLE_HELP_TEXT,
     VERIFIED_HELP_TEXT,
-    EMAIL_REQUIRED_MESSAGE,
 )
 
 
