@@ -37,5 +37,4 @@ if settings.ENABLE_SWAGGER:
             name=SWAGGER_UI_V1_NAME,
         ),
     ]
-
 urlpatterns += urlpatterns_v1

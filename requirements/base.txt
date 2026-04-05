@@ -10,12 +10,8 @@ drf-yasg==1.21.10
 drf-writable-nested==0.7.2
 django-import-export==4.3.9
 
+# PostgreSQL
 psycopg[binary]==3.2.9
-
-
-
-
-
 
 # AWS
 boto3==1.40.14

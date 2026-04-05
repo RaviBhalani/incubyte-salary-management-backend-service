@@ -1,4 +1,3 @@
-
 x-build: &base-build
   build:
     context: ./
@@ -12,8 +11,6 @@ x-env: &base-env
     - .envs/prod/db.env
 
 services:
-
-
 
   postgres:
     image: postgres:18.3
@@ -31,11 +28,6 @@ services:
     restart: always
     depends_on:
       - postgres
-  
-
-
-
-
 
 volumes:
   incubyte_salary_management_backend_service_postgres_volume:
