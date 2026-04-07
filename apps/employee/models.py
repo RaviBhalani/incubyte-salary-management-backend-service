@@ -1,6 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from apps.core.models import IsActive
 from apps.employee.constants import (
     EMPLOYEE_COUNTRY_MAX_LENGTH,
     EMPLOYEE_DEPARTMENT_MAX_LENGTH,
@@ -14,7 +15,7 @@ from apps.employee.constants import (
 )
 
 
-class Employee(models.Model):
+class Employee(IsActive):
     employee_id = models.CharField(max_length=EMPLOYEE_ID_MAX_LENGTH, unique=True)
     name = models.CharField(max_length=EMPLOYEE_NAME_MAX_LENGTH)
     email = models.EmailField(unique=True)
