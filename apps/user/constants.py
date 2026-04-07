@@ -33,3 +33,17 @@ PASSWORDS_DO_NOT_MATCH = "Passwords don't match"
 """
 Message constants end.
 """
+
+
+"""
+Create superuser command constants start.
+"""
+
+CREATE_SUPERUSER_HELP = "Create a superuser with email, password, first name, and last name"
+
+USER_ALREADY_EXISTS_MESSAGE = "User with email '{}' already exists. Skipping."
+CREATE_SUPERUSER_SUCCESS_MESSAGE = "Superuser '{}' created successfully."
+
+"""
+Create superuser command constants end.
+"""
