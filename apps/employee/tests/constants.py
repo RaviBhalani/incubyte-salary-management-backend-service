@@ -37,6 +37,7 @@ Employee response key constants start.
 """
 
 EMPLOYEE_ID_FIELD = "employee_id"
+IS_ACTIVE_FIELD = "is_active"
 NAME_FIELD = "name"
 EMAIL_FIELD = "email"
 JOB_TITLE_FIELD = "job_title"

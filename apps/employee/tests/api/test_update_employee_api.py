@@ -5,6 +5,7 @@ from apps.employee.tests.constants import (
     COUNTRY_FIELD,
     DATA_KEY,
     DEPARTMENT_FIELD,
+    IS_ACTIVE_FIELD,
     INVALID_COUNTRY,
     INVALID_DEPARTMENT,
     INVALID_JOB_TITLE,
@@ -89,6 +90,22 @@ class TestUpdateEmployeeApi:
         )
 
         assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_deactivates_employee_when_is_active_set_to_false(
+            self,
+            authenticated_client,
+            employee_detail_url,
+            employee,
+    ):
+        response = authenticated_client.patch(
+            employee_detail_url,
+            {IS_ACTIVE_FIELD: False},
+            format=JSON_FORMAT,
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        employee.refresh_from_db()
+        assert not employee.is_active
 
     def test_returns_error_for_mismatched_job_title_and_department(
             self,
