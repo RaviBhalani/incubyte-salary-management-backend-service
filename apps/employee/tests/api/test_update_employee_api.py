@@ -9,6 +9,9 @@ from apps.employee.tests.constants import (
     JOB_TITLE_FIELD,
     MISMATCHED_JOB_TITLE,
     NAME_FIELD,
+    NEGATIVE_SALARY,
+    SALARY_ABOVE_MAXIMUM,
+    SALARY_BELOW_MINIMUM,
     SALARY_FIELD,
     UPDATED_EMPLOYEE_NAME,
     UPDATED_EMPLOYEE_SALARY,
@@ -44,6 +47,33 @@ class TestUpdateEmployeeApi:
         response = authenticated_client.patch(
             employee_detail_url,
             {DEPARTMENT_FIELD: INVALID_DEPARTMENT},
+            format=JSON_FORMAT,
+        )
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_negative_salary(self, authenticated_client, employee_detail_url, employee):
+        response = authenticated_client.patch(
+            employee_detail_url,
+            {SALARY_FIELD: NEGATIVE_SALARY},
+            format=JSON_FORMAT,
+        )
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_salary_below_minimum(self, authenticated_client, employee_detail_url, employee):
+        response = authenticated_client.patch(
+            employee_detail_url,
+            {SALARY_FIELD: SALARY_BELOW_MINIMUM},
+            format=JSON_FORMAT,
+        )
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_salary_above_maximum(self, authenticated_client, employee_detail_url, employee):
+        response = authenticated_client.patch(
+            employee_detail_url,
+            {SALARY_FIELD: SALARY_ABOVE_MAXIMUM},
             format=JSON_FORMAT,
         )
 
