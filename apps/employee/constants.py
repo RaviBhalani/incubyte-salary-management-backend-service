@@ -31,6 +31,8 @@ from django.db.models import TextChoices
 
 EMPLOYEE_ID_MAX_LENGTH = 13
 EMPLOYEE_NAME_MAX_LENGTH = 300
+EMPLOYEE_SALARY_MIN_VALUE = 10_000
+EMPLOYEE_SALARY_MAX_VALUE = 1_000_000_000
 
 
 class JobTitle(TextChoices):

@@ -10,6 +10,10 @@ from apps.employee.tests.constants import (
     INVALID_JOB_TITLE,
     JOB_TITLE_FIELD,
     MISMATCHED_DEPARTMENT,
+    NEGATIVE_SALARY,
+    SALARY_ABOVE_MAXIMUM,
+    SALARY_BELOW_MINIMUM,
+    SALARY_FIELD,
 )
 from tests.constants import JSON_FORMAT
 from tests.helpers.assertions import assert_error_response
@@ -34,6 +38,24 @@ class TestCreateEmployeeApi:
 
     def test_returns_error_for_invalid_department(self, authenticated_client, employee_url, employee_payload):
         employee_payload[DEPARTMENT_FIELD] = INVALID_DEPARTMENT
+        response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_negative_salary(self, authenticated_client, employee_url, employee_payload):
+        employee_payload[SALARY_FIELD] = NEGATIVE_SALARY
+        response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_salary_below_minimum(self, authenticated_client, employee_url, employee_payload):
+        employee_payload[SALARY_FIELD] = SALARY_BELOW_MINIMUM
+        response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_salary_above_maximum(self, authenticated_client, employee_url, employee_payload):
+        employee_payload[SALARY_FIELD] = SALARY_ABOVE_MAXIMUM
         response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
 
         assert_error_response(response, status.HTTP_400_BAD_REQUEST)
