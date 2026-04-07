@@ -1,5 +1,6 @@
 from os.path import join
 
+from apps.user.constants import USER_APP
 from .configurations.common_settings import BASE_DIR, APP_TITLE
 from .configurations.database_settings import postgres_settings
 from .configurations.env_helpers import get_env_var, get_bool_env_var, get_list_env_var, get_int_env_var
@@ -38,7 +39,7 @@ THIRD_PARTY_APPS = [
 ]
 
 PROJECT_APPS = [
-    "apps.user",
+    USER_APP,
 ]
 
 INSTALLED_APPS = CORE_APPS + PROJECT_APPS + THIRD_PARTY_APPS

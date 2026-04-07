@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-from apps.core.constants import USER_APP
+from apps.user.constants import USER_APP
 
 
 class UserConfig(AppConfig):
