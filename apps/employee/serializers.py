@@ -33,8 +33,9 @@ class EmployeeSerializer(ModelSerializer):
         return super().create(validated_data)
 
     def validate(self, data):
-        job_title = data.get("job_title")
-        department = data.get("department")
+        instance = self.instance
+        job_title = data.get("job_title", instance.job_title if instance else None)
+        department = data.get("department", instance.department if instance else None)
 
         if job_title and department:
             if JOB_TITLE_DEPARTMENT_MAP.get(job_title) != department:
