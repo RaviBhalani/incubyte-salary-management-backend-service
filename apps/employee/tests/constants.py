@@ -1,3 +1,5 @@
+from apps.employee.constants import JobTitle
+
 """
 Employee test data constants start.
 """
@@ -5,7 +7,8 @@ Employee test data constants start.
 TEST_EMPLOYEE_ID = "EMP0000000001"
 TEST_EMPLOYEE_NAME = "John Doe"
 TEST_EMPLOYEE_EMAIL = "john.doe@example.com"
-TEST_EMPLOYEE_JOB_TITLE = "Software Engineer"
+TEST_EMPLOYEE_JOB_TITLE = JobTitle.SOFTWARE_ENGINEER
+INVALID_JOB_TITLE = "Invalid Job Title"
 TEST_EMPLOYEE_DEPARTMENT = "Engineering"
 TEST_EMPLOYEE_SALARY = 50000
 TEST_EMPLOYEE_JOINING_DATE = "2024-01-15"
