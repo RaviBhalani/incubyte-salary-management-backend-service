@@ -17,6 +17,10 @@ urlpatterns_v1 = [
         V1_API_PREFIX,
         include("apps.user.urls"),
     ),
+    path(
+        V1_API_PREFIX,
+        include("apps.employee.urls"),
+    ),
 ]
 
 urlpatterns = []
