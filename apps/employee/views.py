@@ -1,10 +1,14 @@
-from apps.core.constants import GET, PATCH, POST
+from apps.core.constants import CREATE, GET, PATCH, POST
 from apps.core.views import BaseViewset
 from apps.employee.models import Employee
-from apps.employee.serializers import EmployeeSerializer
+from apps.employee.serializers import EmployeeCreateSerializer, EmployeeUpdateSerializer
 
 
 class EmployeeViewSet(BaseViewset):
     http_method_names = [GET, POST, PATCH]
-    serializer_class = EmployeeSerializer
     queryset = Employee.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == CREATE:
+            return EmployeeCreateSerializer
+        return EmployeeUpdateSerializer
