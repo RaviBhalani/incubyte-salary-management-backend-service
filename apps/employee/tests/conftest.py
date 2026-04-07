@@ -5,8 +5,6 @@ from apps.employee.constants import EMPLOYEE_DETAIL_NAME, EMPLOYEE_LIST_NAME
 from apps.employee.tests.constants import (
     TEST_EMPLOYEE_COUNTRY,
     TEST_EMPLOYEE_DEPARTMENT,
-    TEST_EMPLOYEE_EMAIL,
-    TEST_EMPLOYEE_ID,
     TEST_EMPLOYEE_JOB_TITLE,
     TEST_EMPLOYEE_JOINING_DATE,
     TEST_EMPLOYEE_NAME,
@@ -28,9 +26,7 @@ def employee_detail_url(employee):
 @pytest.fixture
 def employee_payload():
     return {
-        "employee_id": TEST_EMPLOYEE_ID,
         "name": TEST_EMPLOYEE_NAME,
-        "email": TEST_EMPLOYEE_EMAIL,
         "job_title": TEST_EMPLOYEE_JOB_TITLE,
         "department": TEST_EMPLOYEE_DEPARTMENT,
         "salary": TEST_EMPLOYEE_SALARY,

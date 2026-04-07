@@ -7,6 +7,7 @@ from apps.employee.tests.constants import (
     DEPARTMENT_FIELD,
     EMAIL_FIELD,
     EMPLOYEE_ID_FIELD,
+    FIRST_AUTO_GENERATED_EMPLOYEE_ID,
     INVALID_COUNTRY,
     INVALID_DEPARTMENT,
     INVALID_JOB_TITLE,
@@ -16,6 +17,7 @@ from apps.employee.tests.constants import (
     SALARY_ABOVE_MAXIMUM,
     SALARY_BELOW_MINIMUM,
     SALARY_FIELD,
+    TEST_AUTO_GENERATED_EMAIL,
 )
 from tests.constants import JSON_FORMAT
 from tests.helpers.assertions import assert_error_response
@@ -29,8 +31,8 @@ class TestCreateEmployeeApi:
         response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data[DATA_KEY][EMPLOYEE_ID_FIELD] == employee_payload[EMPLOYEE_ID_FIELD]
-        assert response.data[DATA_KEY][EMAIL_FIELD] == employee_payload[EMAIL_FIELD]
+        assert response.data[DATA_KEY][EMPLOYEE_ID_FIELD] == FIRST_AUTO_GENERATED_EMPLOYEE_ID
+        assert response.data[DATA_KEY][EMAIL_FIELD] == TEST_AUTO_GENERATED_EMAIL
 
     def test_returns_error_for_invalid_job_title(self, authenticated_client, employee_url, employee_payload):
         employee_payload[JOB_TITLE_FIELD] = INVALID_JOB_TITLE

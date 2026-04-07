@@ -23,6 +23,9 @@ INVALID_COUNTRY = "Invalid Country"
 UPDATED_EMPLOYEE_NAME = "Jane Doe"
 UPDATED_EMPLOYEE_SALARY = 60000
 
+FIRST_AUTO_GENERATED_EMPLOYEE_ID = "EMP1"
+TEST_AUTO_GENERATED_EMAIL = "emp_1@incubyte.com"
+
 """
 Employee test data constants end.
 """
