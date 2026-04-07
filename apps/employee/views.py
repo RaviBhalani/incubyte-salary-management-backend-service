@@ -4,7 +4,7 @@ from apps.employee.models import Employee
 from apps.employee.serializers import EmployeeSerializer
 
 
-class EmployeeViewset(BaseViewset):
+class EmployeeViewSet(BaseViewset):
     http_method_names = [GET, POST, PATCH]
     serializer_class = EmployeeSerializer
     queryset = Employee.objects.all()
