@@ -9,6 +9,7 @@ from apps.employee.constants import (
     EMPLOYEE_NAME_MAX_LENGTH,
     EMPLOYEE_SALARY_MAX_VALUE,
     EMPLOYEE_SALARY_MIN_VALUE,
+    Country,
     JobTitle,
 )
 
@@ -26,7 +27,7 @@ class Employee(models.Model):
         ]
     )
     joining_date = models.DateField()
-    country = models.CharField(max_length=EMPLOYEE_COUNTRY_MAX_LENGTH)
+    country = models.CharField(max_length=EMPLOYEE_COUNTRY_MAX_LENGTH, choices=Country)
 
     class Meta:
         db_table = "employee"

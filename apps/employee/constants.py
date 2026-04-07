@@ -55,7 +55,16 @@ class Department(TextChoices):
 
 EMPLOYEE_DEPARTMENT_MAX_LENGTH = max(len(dept.value) for dept in Department)
 
-EMPLOYEE_COUNTRY_MAX_LENGTH = 150
+class Country(TextChoices):
+    UNITED_STATES = "UNITED_STATES", "United States"
+    INDIA = "INDIA", "India"
+    UNITED_KINGDOM = "UNITED_KINGDOM", "United Kingdom"
+    GERMANY = "GERMANY", "Germany"
+    CANADA = "CANADA", "Canada"
+    AUSTRALIA = "AUSTRALIA", "Australia"
+
+
+EMPLOYEE_COUNTRY_MAX_LENGTH = max(len(country.value) for country in Country)
 
 JOB_TITLE_DEPARTMENT_MAP = {
     JobTitle.SOFTWARE_ENGINEER: Department.ENGINEERING,
