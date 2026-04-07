@@ -2,8 +2,10 @@ import pytest
 from rest_framework import status
 
 from apps.employee.tests.constants import (
+    COUNTRY_FIELD,
     DATA_KEY,
     DEPARTMENT_FIELD,
+    INVALID_COUNTRY,
     INVALID_DEPARTMENT,
     INVALID_JOB_TITLE,
     JOB_TITLE_FIELD,
@@ -74,6 +76,15 @@ class TestUpdateEmployeeApi:
         response = authenticated_client.patch(
             employee_detail_url,
             {SALARY_FIELD: SALARY_ABOVE_MAXIMUM},
+            format=JSON_FORMAT,
+        )
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_invalid_country(self, authenticated_client, employee_detail_url, employee):
+        response = authenticated_client.patch(
+            employee_detail_url,
+            {COUNTRY_FIELD: INVALID_COUNTRY},
             format=JSON_FORMAT,
         )
 
