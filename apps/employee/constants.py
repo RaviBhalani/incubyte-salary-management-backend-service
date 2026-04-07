@@ -31,8 +31,6 @@ from django.db.models import TextChoices
 
 EMPLOYEE_ID_MAX_LENGTH = 13
 EMPLOYEE_NAME_MAX_LENGTH = 300
-EMPLOYEE_DEPARTMENT_MAX_LENGTH = 150
-EMPLOYEE_COUNTRY_MAX_LENGTH = 150
 
 
 class JobTitle(TextChoices):
@@ -46,6 +44,37 @@ class JobTitle(TextChoices):
 
 EMPLOYEE_JOB_TITLE_MAX_LENGTH = max(len(job.value) for job in JobTitle)
 
+
+class Department(TextChoices):
+    ENGINEERING = "ENGINEERING", "Engineering"
+    MANAGEMENT = "MANAGEMENT", "Management"
+    HR = "HR", "HR"
+
+
+EMPLOYEE_DEPARTMENT_MAX_LENGTH = max(len(dept.value) for dept in Department)
+
+EMPLOYEE_COUNTRY_MAX_LENGTH = 150
+
+JOB_TITLE_DEPARTMENT_MAP = {
+    JobTitle.SOFTWARE_ENGINEER: Department.ENGINEERING,
+    JobTitle.SENIOR_SOFTWARE_ENGINEER: Department.ENGINEERING,
+    JobTitle.DATA_ANALYST: Department.ENGINEERING,
+    JobTitle.ENGINEERING_MANAGER: Department.MANAGEMENT,
+    JobTitle.PRODUCT_MANAGER: Department.MANAGEMENT,
+    JobTitle.HR_MANAGER: Department.HR,
+}
+
 """
 Model constants end.
+"""
+
+
+"""
+Validation message constants start.
+"""
+
+INVALID_JOB_TITLE_DEPARTMENT_MESSAGE = "Department does not match the job title."
+
+"""
+Validation message constants end.
 """

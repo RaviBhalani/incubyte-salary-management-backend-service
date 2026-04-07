@@ -1,4 +1,4 @@
-from apps.employee.constants import Country, Department, JobTitle
+from apps.employee.constants import Department, JobTitle
 
 """
 Employee test data constants start.
@@ -14,7 +14,7 @@ INVALID_DEPARTMENT = "Invalid Department"
 MISMATCHED_DEPARTMENT = Department.MANAGEMENT
 TEST_EMPLOYEE_SALARY = 50000
 TEST_EMPLOYEE_JOINING_DATE = "2024-01-15"
-TEST_EMPLOYEE_COUNTRY = Country.INDIA
+TEST_EMPLOYEE_COUNTRY = "India"
 
 UPDATED_EMPLOYEE_NAME = "Jane Doe"
 UPDATED_EMPLOYEE_SALARY = 60000
