@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from apps.employee.constants import (
@@ -6,6 +7,8 @@ from apps.employee.constants import (
     EMPLOYEE_ID_MAX_LENGTH,
     EMPLOYEE_JOB_TITLE_MAX_LENGTH,
     EMPLOYEE_NAME_MAX_LENGTH,
+    EMPLOYEE_SALARY_MAX_VALUE,
+    EMPLOYEE_SALARY_MIN_VALUE,
     JobTitle,
 )
 
@@ -16,7 +19,12 @@ class Employee(models.Model):
     email = models.EmailField(unique=True)
     job_title = models.CharField(max_length=EMPLOYEE_JOB_TITLE_MAX_LENGTH, choices=JobTitle)
     department = models.CharField(max_length=EMPLOYEE_DEPARTMENT_MAX_LENGTH)
-    salary = models.IntegerField()
+    salary = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(EMPLOYEE_SALARY_MIN_VALUE),
+            MaxValueValidator(EMPLOYEE_SALARY_MAX_VALUE)
+        ]
+    )
     joining_date = models.DateField()
     country = models.CharField(max_length=EMPLOYEE_COUNTRY_MAX_LENGTH)
 
