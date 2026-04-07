@@ -255,3 +255,6 @@ http-client.private.env.json
 # Apifox Helper cache
 .idea/.cache/.Apifox_Helper
 .idea/ApifoxUploaderProjectSetting.xml
+
+# Claude Code local settings
+.claude/settings.local.json

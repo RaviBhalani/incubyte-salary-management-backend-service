@@ -137,3 +137,6 @@ build_and_run_server.sh
 run_server.sh
 
 README.md
+
+# Claude Code local settings
+.claude/settings.local.json
