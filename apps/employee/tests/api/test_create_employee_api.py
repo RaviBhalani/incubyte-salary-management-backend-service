@@ -8,6 +8,7 @@ from apps.employee.tests.constants import (
     EMAIL_FIELD,
     EMPLOYEE_ID_FIELD,
     FIRST_AUTO_GENERATED_EMPLOYEE_ID,
+    IS_ACTIVE_FIELD,
     INVALID_COUNTRY,
     INVALID_DEPARTMENT,
     INVALID_JOB_TITLE,
@@ -33,6 +34,13 @@ class TestCreateEmployeeApi:
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data[DATA_KEY][EMPLOYEE_ID_FIELD] == FIRST_AUTO_GENERATED_EMPLOYEE_ID
         assert response.data[DATA_KEY][EMAIL_FIELD] == TEST_AUTO_GENERATED_EMAIL
+
+    def test_ignores_is_active_field_and_creates_employee_as_active(self, authenticated_client, employee_url, employee_payload):
+        employee_payload[IS_ACTIVE_FIELD] = False
+        response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data[DATA_KEY][IS_ACTIVE_FIELD] is True
 
     def test_returns_error_for_invalid_job_title(self, authenticated_client, employee_url, employee_payload):
         employee_payload[JOB_TITLE_FIELD] = INVALID_JOB_TITLE
