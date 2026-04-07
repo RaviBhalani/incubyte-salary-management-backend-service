@@ -7,7 +7,7 @@ from apps.user.tests.constants import (
     REFRESH_TOKEN_KEY,
 )
 from tests.constants import JSON_FORMAT
-from tests.helpers import assert_error_response
+from tests.helpers.assertions import assert_error_response
 
 
 pytestmark = pytest.mark.django_db
