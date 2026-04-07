@@ -5,7 +5,7 @@ from apps.core.url_builder import build_url
 URLs start.
 """
 
-V1_API_PREFIX = "api/v1"
+V1_API_PREFIX = "api/v1/"
 
 ADMIN_URL = "admin/"
 
