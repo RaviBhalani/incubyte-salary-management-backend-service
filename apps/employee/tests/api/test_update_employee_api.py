@@ -121,7 +121,7 @@ class TestUpdateEmployeeApi:
 
         assert_error_response(response, status.HTTP_400_BAD_REQUEST)
 
-    def test_returns_error_when_reactivating_deleted_employee(
+    def test_returns_not_found_when_reactivating_deleted_employee(
             self,
             authenticated_client,
             deleted_employee_detail_url,
@@ -133,4 +133,4 @@ class TestUpdateEmployeeApi:
             format=JSON_FORMAT,
         )
 
-        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
