@@ -6,7 +6,7 @@ from apps.employee.serializers import EmployeeCreateSerializer, EmployeeUpdateSe
 
 class EmployeeViewSet(BaseViewset):
     http_method_names = [GET, POST, PATCH]
-    queryset = Employee.objects.all()
+    queryset = Employee.objects.filter(is_active=True)
 
     def get_serializer_class(self):
         if self.action == CREATE:

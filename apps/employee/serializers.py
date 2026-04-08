@@ -3,7 +3,6 @@ from django.db.models.functions import Cast, Substr
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from apps.employee.constants import (
-    CANNOT_REACTIVATE_DELETED_EMPLOYEE_MESSAGE,
     COMPANY_EMAIL_DOMAIN,
     EMPLOYEE_EMAIL_PREFIX,
     EMPLOYEE_ID_PREFIX,
@@ -50,11 +49,6 @@ class EmployeeCreateSerializer(EmployeeWriteSerializer):
 
 
 class EmployeeUpdateSerializer(EmployeeWriteSerializer):
-
-    def validate_is_active(self, value):
-        if not self.instance.is_active and value is True:
-            raise ValidationError(CANNOT_REACTIVATE_DELETED_EMPLOYEE_MESSAGE)
-        return value
 
     def validate(self, data):
         job_title = data.get("job_title", self.instance.job_title)
