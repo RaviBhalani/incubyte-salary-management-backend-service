@@ -3,11 +3,13 @@ from rest_framework import status
 
 from apps.employee.tests.constants import (
     COUNT_KEY,
+    COUNTRY_FIELD,
     DATA_KEY,
     DEPARTMENT_FIELD,
     EMPLOYEE_ID_FIELD,
     JOB_TITLE_FIELD,
     RESULTS_KEY,
+    TEST_EMPLOYEE_COUNTRY,
     TEST_EMPLOYEE_DEPARTMENT,
     TEST_EMPLOYEE_JOB_TITLE,
 )
@@ -59,6 +61,20 @@ class TestListEmployeeApi:
         assert response.status_code == status.HTTP_200_OK
         assert len(results) > 0
         assert all(e[DEPARTMENT_FIELD] == TEST_EMPLOYEE_DEPARTMENT for e in results)
+
+    def test_returns_only_employees_matching_country_filter(
+            self,
+            authenticated_client,
+            employee_url,
+            employee,
+            other_employee
+    ):
+        response = authenticated_client.get(f"{employee_url}?country={TEST_EMPLOYEE_COUNTRY}", format=JSON_FORMAT)
+        results = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) > 0
+        assert all(e[COUNTRY_FIELD] == TEST_EMPLOYEE_COUNTRY for e in results)
 
     def test_returns_paginated_results_when_page_param_is_provided(self, authenticated_client, employee_url, employee):
         response = authenticated_client.get(f"{employee_url}?page=1", format=JSON_FORMAT)

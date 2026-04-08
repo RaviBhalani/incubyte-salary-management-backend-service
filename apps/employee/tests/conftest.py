@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from apps.employee.constants import EMPLOYEE_DETAIL_NAME, EMPLOYEE_LIST_NAME
 from apps.employee.tests.constants import (
+    OTHER_EMPLOYEE_COUNTRY,
     OTHER_EMPLOYEE_DEPARTMENT,
     OTHER_EMPLOYEE_EMAIL,
     OTHER_EMPLOYEE_ID,
@@ -53,6 +54,7 @@ def other_employee():
         email=OTHER_EMPLOYEE_EMAIL,
         job_title=OTHER_EMPLOYEE_JOB_TITLE,
         department=OTHER_EMPLOYEE_DEPARTMENT,
+        country=OTHER_EMPLOYEE_COUNTRY,
     )
 
 
