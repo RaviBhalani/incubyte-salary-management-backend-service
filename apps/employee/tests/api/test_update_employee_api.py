@@ -120,3 +120,17 @@ class TestUpdateEmployeeApi:
         )
 
         assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_when_reactivating_deleted_employee(
+            self,
+            authenticated_client,
+            deleted_employee_detail_url,
+            deleted_employee,
+    ):
+        response = authenticated_client.patch(
+            deleted_employee_detail_url,
+            {IS_ACTIVE_FIELD: True},
+            format=JSON_FORMAT,
+        )
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)

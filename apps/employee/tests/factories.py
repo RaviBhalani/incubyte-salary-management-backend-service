@@ -21,8 +21,9 @@ def create_employee(
     salary=TEST_EMPLOYEE_SALARY,
     joining_date=TEST_EMPLOYEE_JOINING_DATE,
     country=TEST_EMPLOYEE_COUNTRY,
+    is_active=None,
 ):
-    return Employee.objects.create(
+    kwargs = dict(
         employee_id=employee_id,
         name=name,
         email=email,
@@ -32,3 +33,6 @@ def create_employee(
         joining_date=joining_date,
         country=country,
     )
+    if is_active is not None:
+        kwargs["is_active"] = is_active
+    return Employee.objects.create(**kwargs)

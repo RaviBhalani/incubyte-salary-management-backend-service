@@ -38,3 +38,13 @@ def employee_payload():
 @pytest.fixture
 def employee():
     return create_employee()
+
+
+@pytest.fixture
+def deleted_employee():
+    return create_employee(is_active=False)
+
+
+@pytest.fixture
+def deleted_employee_detail_url(deleted_employee):
+    return reverse(EMPLOYEE_DETAIL_NAME, args=[deleted_employee.id])
