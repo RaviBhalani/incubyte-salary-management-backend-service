@@ -3,6 +3,11 @@ from django.urls import reverse
 
 from apps.employee.constants import EMPLOYEE_DETAIL_NAME, EMPLOYEE_LIST_NAME
 from apps.employee.tests.constants import (
+    OTHER_EMPLOYEE_DEPARTMENT,
+    OTHER_EMPLOYEE_EMAIL,
+    OTHER_EMPLOYEE_ID,
+    OTHER_EMPLOYEE_JOB_TITLE,
+    OTHER_EMPLOYEE_NAME,
     TEST_EMPLOYEE_COUNTRY,
     TEST_EMPLOYEE_DEPARTMENT,
     TEST_EMPLOYEE_JOB_TITLE,
@@ -38,6 +43,17 @@ def employee_payload():
 @pytest.fixture
 def employee():
     return create_employee()
+
+
+@pytest.fixture
+def other_employee():
+    return create_employee(
+        employee_id=OTHER_EMPLOYEE_ID,
+        name=OTHER_EMPLOYEE_NAME,
+        email=OTHER_EMPLOYEE_EMAIL,
+        job_title=OTHER_EMPLOYEE_JOB_TITLE,
+        department=OTHER_EMPLOYEE_DEPARTMENT,
+    )
 
 
 @pytest.fixture
