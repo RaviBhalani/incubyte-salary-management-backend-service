@@ -88,6 +88,7 @@ Validation message constants start.
 """
 
 INVALID_JOB_TITLE_DEPARTMENT_MESSAGE = "Department does not match the job title."
+CANNOT_REACTIVATE_DELETED_EMPLOYEE_MESSAGE = "Deleted employees cannot be reactivated."
 
 """
 Validation message constants end.
