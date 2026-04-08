@@ -6,8 +6,13 @@ from apps.employee.tests.constants import (
     COUNTRY_FIELD,
     DATA_KEY,
     DEPARTMENT_FIELD,
+    EMAIL_FIELD,
+    EMPLOYEE_EMAIL_SEARCH_QUERY,
     EMPLOYEE_ID_FIELD,
+    EMPLOYEE_ID_SEARCH_QUERY,
+    EMPLOYEE_SEARCH_QUERY,
     JOB_TITLE_FIELD,
+    NAME_FIELD,
     RESULTS_KEY,
     SALARY_FIELD,
     TEST_EMPLOYEE_COUNTRY,
@@ -94,6 +99,48 @@ class TestListEmployeeApi:
         assert response.status_code == status.HTTP_200_OK
         assert len(results) > 0
         assert all(e[SALARY_FIELD] == TEST_EMPLOYEE_SALARY for e in results)
+
+    def test_returns_only_employees_matching_search_query(
+            self,
+            authenticated_client,
+            employee_url,
+            employee,
+            other_employee
+    ):
+        response = authenticated_client.get(f"{employee_url}?search={EMPLOYEE_SEARCH_QUERY}", format=JSON_FORMAT)
+        results = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) > 0
+        assert all(EMPLOYEE_SEARCH_QUERY.lower() in e[NAME_FIELD].lower() for e in results)
+
+    def test_returns_only_employees_matching_search_query_by_email(
+            self,
+            authenticated_client,
+            employee_url,
+            employee,
+            other_employee
+    ):
+        response = authenticated_client.get(f"{employee_url}?search={EMPLOYEE_EMAIL_SEARCH_QUERY}", format=JSON_FORMAT)
+        results = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) > 0
+        assert all(EMPLOYEE_EMAIL_SEARCH_QUERY.lower() in e[EMAIL_FIELD].lower() for e in results)
+
+    def test_returns_only_employees_matching_search_query_by_employee_id(
+            self,
+            authenticated_client,
+            employee_url,
+            employee,
+            other_employee
+    ):
+        response = authenticated_client.get(f"{employee_url}?search={EMPLOYEE_ID_SEARCH_QUERY}", format=JSON_FORMAT)
+        results = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(results) > 0
+        assert all(EMPLOYEE_ID_SEARCH_QUERY.lower() in e[EMPLOYEE_ID_FIELD].lower() for e in results)
 
     def test_returns_paginated_results_when_page_param_is_provided(self, authenticated_client, employee_url, employee):
         response = authenticated_client.get(f"{employee_url}?page=1", format=JSON_FORMAT)
