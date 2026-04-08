@@ -142,8 +142,9 @@ Pytest with `pytest-django`; config in `pytest.ini` (`testpaths = tests apps`).
 ```
 apps/<app>/tests/
 ├── __init__.py
-├── conftest.py        # app-level fixtures (URLs, payloads, user setup)
+├── conftest.py        # app-level fixtures (URLs, payloads, model fixtures)
 ├── constants.py       # app-specific test strings/values
+├── factories.py       # keyword-only factory functions for model creation
 └── api/
     ├── __init__.py
     └── test_<feature>_api.py
@@ -180,10 +181,13 @@ def login_url():
     return reverse(LOGIN_NAME)
 ```
 
-**Factory functions use keyword-only args** with defaults from `tests/constants.py`:
+**Factory functions use keyword-only args** with defaults from the app's own `tests/constants.py` (or global `tests/constants.py` for the `User` factory):
 ```python
 def create_user(*, email=TEST_USER_EMAIL, password=TEST_USER_PASSWORD):
     return get_user_model().objects.create_user(email=email, password=password)
+
+def create_employee(*, name=TEST_EMPLOYEE_NAME, salary=TEST_EMPLOYEE_SALARY, ...):
+    return Employee.objects.create(name=name, salary=salary, ...)
 ```
 
 **Always pass `format=JSON_FORMAT`** to API calls:
