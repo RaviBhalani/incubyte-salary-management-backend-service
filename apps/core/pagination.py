@@ -1,6 +1,8 @@
-from rest_framework.pagination import PageNumberPagination
 from collections import OrderedDict
-from apps.core.custom_exception_handlers import get_response
+
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
 from apps.core.constants import PAGE_SIZE, MAX_PAGE_SIZE
 
 
