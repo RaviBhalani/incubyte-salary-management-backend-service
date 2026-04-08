@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 from apps.core.constants import CREATE, GET, PATCH, POST
 from apps.core.views import BaseViewset
@@ -10,8 +11,9 @@ from apps.employee.serializers import EmployeeCreateSerializer, EmployeeUpdateSe
 class EmployeeViewSet(BaseViewset):
     http_method_names = [GET, POST, PATCH]
     queryset = Employee.objects.filter(is_active=True)
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = EmployeeFilter
+    search_fields = ["employee_id", "name", "email"]
 
     def get_serializer_class(self):
         if self.action == CREATE:
