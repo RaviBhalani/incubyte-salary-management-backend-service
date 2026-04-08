@@ -9,6 +9,7 @@ from apps.employee.tests.constants import (
     OTHER_EMPLOYEE_ID,
     OTHER_EMPLOYEE_JOB_TITLE,
     OTHER_EMPLOYEE_NAME,
+    OTHER_EMPLOYEE_SALARY,
     TEST_EMPLOYEE_COUNTRY,
     TEST_EMPLOYEE_DEPARTMENT,
     TEST_EMPLOYEE_JOB_TITLE,
@@ -55,6 +56,7 @@ def other_employee():
         job_title=OTHER_EMPLOYEE_JOB_TITLE,
         department=OTHER_EMPLOYEE_DEPARTMENT,
         country=OTHER_EMPLOYEE_COUNTRY,
+        salary=OTHER_EMPLOYEE_SALARY,
     )
 
 
