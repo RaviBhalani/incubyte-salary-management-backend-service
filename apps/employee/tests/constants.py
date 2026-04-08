@@ -49,6 +49,7 @@ JOINING_DATE_FIELD = "joining_date"
 COUNTRY_FIELD = "country"
 DATA_KEY = "data"
 RESULTS_KEY = "results"
+COUNT_KEY = "count"
 
 """
 Employee response key constants end.
