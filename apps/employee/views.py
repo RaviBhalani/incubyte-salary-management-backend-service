@@ -1,5 +1,8 @@
+from django_filters.rest_framework import DjangoFilterBackend
+
 from apps.core.constants import CREATE, GET, PATCH, POST
 from apps.core.views import BaseViewset
+from apps.employee.filters import EmployeeFilter
 from apps.employee.models import Employee
 from apps.employee.serializers import EmployeeCreateSerializer, EmployeeUpdateSerializer
 
@@ -7,6 +10,8 @@ from apps.employee.serializers import EmployeeCreateSerializer, EmployeeUpdateSe
 class EmployeeViewSet(BaseViewset):
     http_method_names = [GET, POST, PATCH]
     queryset = Employee.objects.filter(is_active=True)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EmployeeFilter
 
     def get_serializer_class(self):
         if self.action == CREATE:
