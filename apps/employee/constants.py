@@ -20,6 +20,7 @@ EMPLOYEE_URL = "employee"
 EMPLOYEE_BASENAME = "employee"
 EMPLOYEE_LIST_NAME = "employee-list"
 EMPLOYEE_DETAIL_NAME = "employee-detail"
+SALARY_INSIGHTS_ACTION_NAME = "employee-salary-insights"
 
 """
 URL constants end.
