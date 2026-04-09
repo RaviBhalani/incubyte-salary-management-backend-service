@@ -26,7 +26,7 @@ class EmployeeViewSet(BaseViewset):
 
     @action(detail=False, methods=[GET], url_path=SALARY_INSIGHTS_URL_PATH, url_name=SALARY_INSIGHTS_URL_NAME)
     def salary_insights(self, request):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
         aggregation = queryset.aggregate(
             min_salary=Min("salary"),
             max_salary=Max("salary"),
