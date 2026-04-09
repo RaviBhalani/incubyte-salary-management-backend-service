@@ -1,5 +1,3 @@
-from django.db.models import IntegerField, Max
-from django.db.models.functions import Cast, Substr
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from apps.employee.constants import (
@@ -34,15 +32,8 @@ class EmployeeCreateSerializer(EmployeeWriteSerializer):
         self._validate_job_title_department(data.get("job_title"), data.get("department"))
         return data
 
-    @staticmethod
-    def _get_next_employee_number():
-        max_num = Employee.objects.aggregate(
-            max_num=Max(Cast(Substr("employee_id", 4), IntegerField()))
-        )["max_num"] or 0
-        return max_num + 1
-
     def create(self, validated_data):
-        next_num = self._get_next_employee_number()
+        next_num = Employee.get_max_employee_number() + 1
         validated_data["employee_id"] = f"{EMPLOYEE_ID_PREFIX}{next_num}"
         validated_data["email"] = f"{EMPLOYEE_EMAIL_PREFIX}_{next_num}@{COMPANY_EMAIL_DOMAIN}"
         return super().create(validated_data)

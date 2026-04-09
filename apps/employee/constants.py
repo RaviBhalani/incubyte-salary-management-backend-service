@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 
 """
@@ -35,7 +36,9 @@ EMPLOYEE_ID_MAX_LENGTH = 13
 EMPLOYEE_NAME_MAX_LENGTH = 300
 EMPLOYEE_SALARY_MIN_VALUE = 10_000
 EMPLOYEE_SALARY_MAX_VALUE = 1_000_000_000
+EMPLOYEE_SALARY_STEP = 10_000
 EMPLOYEE_ID_PREFIX = "EMP"
+EMPLOYEE_ID_NUMERIC_START_INDEX = len(EMPLOYEE_ID_PREFIX) + 1
 EMPLOYEE_EMAIL_PREFIX = "emp"
 COMPANY_EMAIL_DOMAIN = "incubyte.com"
 
@@ -117,4 +120,19 @@ GENERATE_NAME_FILES_SUCCESS_MESSAGE = (
 
 """
 Name file generation constants end.
+"""
+
+
+"""
+Employee seed constants start.
+"""
+
+SEED_EMPLOYEES_COUNT = 10_000
+BULK_CREATE_BATCH_SIZE = 500
+SEED_JOINING_DATE_START = date(2015, 1, 1)
+SEED_EMPLOYEES_HELP = "Seed 10,000 employee records from first_names.txt and last_names.txt"
+SEED_EMPLOYEES_SUCCESS_MESSAGE = "Successfully seeded {count} employee records."
+
+"""
+Employee seed constants end.
 """
