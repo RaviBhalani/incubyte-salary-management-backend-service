@@ -13,8 +13,12 @@ from apps.employee.tests.constants import (
     EMPLOYEE_SEARCH_QUERY,
     JOB_TITLE_FIELD,
     NAME_FIELD,
+    PAGE_QUERY_PARAM,
     RESULTS_KEY,
     SALARY_FIELD,
+    SALARY_MAX_QUERY_PARAM,
+    SALARY_MIN_QUERY_PARAM,
+    SEARCH_QUERY_PARAM,
     TEST_EMPLOYEE_COUNTRY,
     TEST_EMPLOYEE_DEPARTMENT,
     TEST_EMPLOYEE_JOB_TITLE,
@@ -48,7 +52,10 @@ class TestListEmployeeApi:
             employee,
             other_employee
     ):
-        response = authenticated_client.get(f"{employee_url}?job_title={TEST_EMPLOYEE_JOB_TITLE}", format=JSON_FORMAT)
+        response = authenticated_client.get(
+            f"{employee_url}?{JOB_TITLE_FIELD}={TEST_EMPLOYEE_JOB_TITLE}",
+            format=JSON_FORMAT
+        )
         results = response.data[DATA_KEY]
 
         assert response.status_code == status.HTTP_200_OK
@@ -62,7 +69,10 @@ class TestListEmployeeApi:
             employee,
             other_employee
     ):
-        response = authenticated_client.get(f"{employee_url}?department={TEST_EMPLOYEE_DEPARTMENT}", format=JSON_FORMAT)
+        response = authenticated_client.get(
+            f"{employee_url}?{DEPARTMENT_FIELD}={TEST_EMPLOYEE_DEPARTMENT}",
+            format=JSON_FORMAT
+        )
         results = response.data[DATA_KEY]
 
         assert response.status_code == status.HTTP_200_OK
@@ -76,7 +86,10 @@ class TestListEmployeeApi:
             employee,
             other_employee
     ):
-        response = authenticated_client.get(f"{employee_url}?country={TEST_EMPLOYEE_COUNTRY}", format=JSON_FORMAT)
+        response = authenticated_client.get(
+            f"{employee_url}?{COUNTRY_FIELD}={TEST_EMPLOYEE_COUNTRY}",
+            format=JSON_FORMAT
+        )
         results = response.data[DATA_KEY]
 
         assert response.status_code == status.HTTP_200_OK
@@ -91,7 +104,9 @@ class TestListEmployeeApi:
             other_employee
     ):
         response = authenticated_client.get(
-            f"{employee_url}?salary_min={TEST_EMPLOYEE_SALARY}&salary_max={TEST_EMPLOYEE_SALARY}",
+            f"{employee_url}?"
+            f"{SALARY_MIN_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}&"
+            f"{SALARY_MAX_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}",
             format=JSON_FORMAT,
         )
         results = response.data[DATA_KEY]
@@ -107,7 +122,10 @@ class TestListEmployeeApi:
             employee,
             other_employee
     ):
-        response = authenticated_client.get(f"{employee_url}?search={EMPLOYEE_SEARCH_QUERY}", format=JSON_FORMAT)
+        response = authenticated_client.get(
+            f"{employee_url}?{SEARCH_QUERY_PARAM}={EMPLOYEE_SEARCH_QUERY}",
+            format=JSON_FORMAT
+        )
         results = response.data[DATA_KEY]
 
         assert response.status_code == status.HTTP_200_OK
@@ -121,7 +139,10 @@ class TestListEmployeeApi:
             employee,
             other_employee
     ):
-        response = authenticated_client.get(f"{employee_url}?search={EMPLOYEE_EMAIL_SEARCH_QUERY}", format=JSON_FORMAT)
+        response = authenticated_client.get(
+            f"{employee_url}?{SEARCH_QUERY_PARAM}={EMPLOYEE_EMAIL_SEARCH_QUERY}",
+            format=JSON_FORMAT
+        )
         results = response.data[DATA_KEY]
 
         assert response.status_code == status.HTTP_200_OK
@@ -135,7 +156,10 @@ class TestListEmployeeApi:
             employee,
             other_employee
     ):
-        response = authenticated_client.get(f"{employee_url}?search={EMPLOYEE_ID_SEARCH_QUERY}", format=JSON_FORMAT)
+        response = authenticated_client.get(
+            f"{employee_url}?{SEARCH_QUERY_PARAM}={EMPLOYEE_ID_SEARCH_QUERY}",
+            format=JSON_FORMAT
+        )
         results = response.data[DATA_KEY]
 
         assert response.status_code == status.HTTP_200_OK
@@ -143,7 +167,7 @@ class TestListEmployeeApi:
         assert all(EMPLOYEE_ID_SEARCH_QUERY.lower() in e[EMPLOYEE_ID_FIELD].lower() for e in results)
 
     def test_returns_paginated_results_when_page_param_is_provided(self, authenticated_client, employee_url, employee):
-        response = authenticated_client.get(f"{employee_url}?page=1", format=JSON_FORMAT)
+        response = authenticated_client.get(f"{employee_url}?{PAGE_QUERY_PARAM}=1", format=JSON_FORMAT)
         data = response.data[DATA_KEY]
         employee_ids = [e[EMPLOYEE_ID_FIELD] for e in data[RESULTS_KEY]]
 

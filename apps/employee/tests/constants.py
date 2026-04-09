@@ -47,6 +47,20 @@ Employee test data constants end.
 
 
 """
+Employee query param constants start.
+"""
+
+SALARY_MIN_QUERY_PARAM = "salary_min"
+SALARY_MAX_QUERY_PARAM = "salary_max"
+SEARCH_QUERY_PARAM = "search"
+PAGE_QUERY_PARAM = "page"
+
+"""
+Employee query param constants end.
+"""
+
+
+"""
 Employee response key constants start.
 """
 
