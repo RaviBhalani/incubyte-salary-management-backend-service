@@ -18,6 +18,7 @@ gunicorn==25.3.0
 
 # Testing
 pytest-django==4.12.0
+Faker==40.13.0
 
 # Miscellaneous
 pre-commit==4.5.1
