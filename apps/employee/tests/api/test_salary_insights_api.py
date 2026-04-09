@@ -10,6 +10,8 @@ from apps.employee.tests.constants import (
     MAX_SALARY_FIELD,
     MIN_SALARY_FIELD,
     OTHER_EMPLOYEE_SALARY,
+    SALARY_MAX_QUERY_PARAM,
+    SALARY_MIN_QUERY_PARAM,
     TEST_EMPLOYEE_COUNTRY,
     TEST_EMPLOYEE_DEPARTMENT,
     TEST_EMPLOYEE_JOB_TITLE,
@@ -70,6 +72,53 @@ class TestSalaryInsightsApi:
     ):
         response = authenticated_client.get(
             f"{salary_insights_url}?{COUNTRY_FIELD}={TEST_EMPLOYEE_COUNTRY}",
+            format=JSON_FORMAT,
+        )
+        data = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data[TOTAL_EMPLOYEES_FIELD] == 1
+        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+
+    def test_returns_metrics_filtered_by_minimum_salary(
+        self, authenticated_client, salary_insights_url, employee, other_employee
+    ):
+        response = authenticated_client.get(
+            f"{salary_insights_url}?{SALARY_MIN_QUERY_PARAM}={OTHER_EMPLOYEE_SALARY}",
+            format=JSON_FORMAT,
+        )
+        data = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data[TOTAL_EMPLOYEES_FIELD] == 1
+        assert data[MIN_SALARY_FIELD] == OTHER_EMPLOYEE_SALARY
+        assert data[MAX_SALARY_FIELD] == OTHER_EMPLOYEE_SALARY
+        assert data[AVG_SALARY_FIELD] == OTHER_EMPLOYEE_SALARY
+
+    def test_returns_metrics_filtered_by_maximum_salary(
+        self, authenticated_client, salary_insights_url, employee, other_employee
+    ):
+        response = authenticated_client.get(
+            f"{salary_insights_url}?{SALARY_MAX_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}",
+            format=JSON_FORMAT,
+        )
+        data = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data[TOTAL_EMPLOYEES_FIELD] == 1
+        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+
+    def test_returns_metrics_filtered_by_salary_range(
+        self, authenticated_client, salary_insights_url, employee, other_employee
+    ):
+        response = authenticated_client.get(
+            f"{salary_insights_url}?"
+            f"{SALARY_MIN_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}&"
+            f"{SALARY_MAX_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}",
             format=JSON_FORMAT,
         )
         data = response.data[DATA_KEY]
