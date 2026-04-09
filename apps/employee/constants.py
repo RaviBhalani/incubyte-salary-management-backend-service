@@ -1,3 +1,5 @@
+from pathlib import Path
+
 """
 App name start.
 """
@@ -91,4 +93,28 @@ INVALID_JOB_TITLE_DEPARTMENT_MESSAGE = "Department does not match the job title.
 
 """
 Validation message constants end.
+"""
+
+
+"""
+Name file generation constants start.
+"""
+
+FAKER_LOCALE = "en_IN"
+FIRST_NAMES_COUNT = 150
+LAST_NAMES_COUNT = 100
+FIRST_NAMES_FILENAME = "first_names.txt"
+LAST_NAMES_FILENAME = "last_names.txt"
+DATA_DIR_NAME = "data"
+DATA_DIR = Path(__file__).resolve().parent / DATA_DIR_NAME
+FIRST_NAMES_FILE = DATA_DIR / FIRST_NAMES_FILENAME
+LAST_NAMES_FILE = DATA_DIR / LAST_NAMES_FILENAME
+GENERATE_NAME_FILES_HELP = "Generate first_names.txt and last_names.txt with Indian names"
+GENERATE_NAME_FILES_SUCCESS_MESSAGE = (
+    "Written {first_count} first names to {first_file}\n"
+    "Written {last_count} last names to {last_file}"
+)
+
+"""
+Name file generation constants end.
 """
