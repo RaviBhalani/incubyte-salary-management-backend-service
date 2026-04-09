@@ -148,3 +148,15 @@ class TestSalaryInsightsApi:
         assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
         assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
         assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+
+    def test_returns_null_metrics_and_zero_total_when_no_employees_exist(
+        self, authenticated_client, salary_insights_url
+    ):
+        response = authenticated_client.get(salary_insights_url, format=JSON_FORMAT)
+        data = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data[TOTAL_EMPLOYEES_FIELD] == 0
+        assert data[MIN_SALARY_FIELD] is None
+        assert data[MAX_SALARY_FIELD] is None
+        assert data[AVG_SALARY_FIELD] is None
