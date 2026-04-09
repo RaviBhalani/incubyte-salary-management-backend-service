@@ -3,6 +3,7 @@ from rest_framework import status
 
 from apps.employee.tests.constants import (
     AVG_SALARY_FIELD,
+    COUNTRY_FIELD,
     DATA_KEY,
     DEPARTMENT_FIELD,
     JOB_TITLE_FIELD,
@@ -54,6 +55,21 @@ class TestSalaryInsightsApi:
     ):
         response = authenticated_client.get(
             f"{salary_insights_url}?{DEPARTMENT_FIELD}={TEST_EMPLOYEE_DEPARTMENT}",
+            format=JSON_FORMAT,
+        )
+        data = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data[TOTAL_EMPLOYEES_FIELD] == 1
+        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+
+    def test_returns_metrics_filtered_by_country(
+        self, authenticated_client, salary_insights_url, employee, other_employee
+    ):
+        response = authenticated_client.get(
+            f"{salary_insights_url}?{COUNTRY_FIELD}={TEST_EMPLOYEE_COUNTRY}",
             format=JSON_FORMAT,
         )
         data = response.data[DATA_KEY]
