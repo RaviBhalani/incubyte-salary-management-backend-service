@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from apps.employee.constants import EMPLOYEE_DETAIL_NAME, EMPLOYEE_LIST_NAME
+from apps.employee.constants import EMPLOYEE_DETAIL_NAME, EMPLOYEE_LIST_NAME, SALARY_INSIGHTS_ACTION_NAME
 from apps.employee.tests.constants import (
     OTHER_EMPLOYEE_COUNTRY,
     OTHER_EMPLOYEE_DEPARTMENT,
@@ -23,6 +23,11 @@ from apps.employee.tests.factories import create_employee
 @pytest.fixture
 def employee_url():
     return reverse(EMPLOYEE_LIST_NAME)
+
+
+@pytest.fixture
+def salary_insights_url():
+    return reverse(SALARY_INSIGHTS_ACTION_NAME)
 
 
 @pytest.fixture

@@ -76,6 +76,10 @@ COUNTRY_FIELD = "country"
 DATA_KEY = "data"
 RESULTS_KEY = "results"
 COUNT_KEY = "count"
+MIN_SALARY_FIELD = "min_salary"
+MAX_SALARY_FIELD = "max_salary"
+AVG_SALARY_FIELD = "avg_salary"
+TOTAL_EMPLOYEES_FIELD = "total_employees"
 
 """
 Employee response key constants end.
