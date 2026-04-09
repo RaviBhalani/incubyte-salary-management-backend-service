@@ -1,5 +1,4 @@
-from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.filters import OrderingFilter
 from rest_framework.mixins import (
     ListModelMixin,
     RetrieveModelMixin,
@@ -7,10 +6,10 @@ from rest_framework.mixins import (
     UpdateModelMixin,
     DestroyModelMixin
 )
-from apps.core.pagination import ListPagination
+from rest_framework.viewsets import GenericViewSet
+
 from apps.core.custom_exception_handlers import get_response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated
+from apps.core.pagination import ListPagination
 
 
 class BaseListModelMixin(ListModelMixin):

@@ -1,5 +1,6 @@
 from os.path import join
 
+from apps.employee.constants import EMPLOYEE_APP
 from apps.user.constants import USER_APP
 from .configurations.common_settings import BASE_DIR, APP_TITLE
 from .configurations.database_settings import postgres_settings
@@ -40,6 +41,7 @@ THIRD_PARTY_APPS = [
 
 PROJECT_APPS = [
     USER_APP,
+    EMPLOYEE_APP,
 ]
 
 INSTALLED_APPS = CORE_APPS + PROJECT_APPS + THIRD_PARTY_APPS
