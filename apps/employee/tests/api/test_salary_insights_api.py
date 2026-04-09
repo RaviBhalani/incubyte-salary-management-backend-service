@@ -18,6 +18,7 @@ from apps.employee.tests.constants import (
     TEST_EMPLOYEE_SALARY,
     TOTAL_EMPLOYEES_FIELD,
 )
+from apps.employee.tests.helpers import assert_salary_insights_filtered_to_employee
 from tests.constants import JSON_FORMAT
 
 pytestmark = pytest.mark.django_db
@@ -44,13 +45,8 @@ class TestSalaryInsightsApi:
             f"{salary_insights_url}?{JOB_TITLE_FIELD}={TEST_EMPLOYEE_JOB_TITLE}",
             format=JSON_FORMAT,
         )
-        data = response.data[DATA_KEY]
 
-        assert response.status_code == status.HTTP_200_OK
-        assert data[TOTAL_EMPLOYEES_FIELD] == 1
-        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert_salary_insights_filtered_to_employee(response)
 
     def test_returns_metrics_filtered_by_department(
         self, authenticated_client, salary_insights_url, employee, other_employee
@@ -59,13 +55,8 @@ class TestSalaryInsightsApi:
             f"{salary_insights_url}?{DEPARTMENT_FIELD}={TEST_EMPLOYEE_DEPARTMENT}",
             format=JSON_FORMAT,
         )
-        data = response.data[DATA_KEY]
 
-        assert response.status_code == status.HTTP_200_OK
-        assert data[TOTAL_EMPLOYEES_FIELD] == 1
-        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert_salary_insights_filtered_to_employee(response)
 
     def test_returns_metrics_filtered_by_country(
         self, authenticated_client, salary_insights_url, employee, other_employee
@@ -74,13 +65,8 @@ class TestSalaryInsightsApi:
             f"{salary_insights_url}?{COUNTRY_FIELD}={TEST_EMPLOYEE_COUNTRY}",
             format=JSON_FORMAT,
         )
-        data = response.data[DATA_KEY]
 
-        assert response.status_code == status.HTTP_200_OK
-        assert data[TOTAL_EMPLOYEES_FIELD] == 1
-        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert_salary_insights_filtered_to_employee(response)
 
     def test_returns_metrics_filtered_by_minimum_salary(
         self, authenticated_client, salary_insights_url, employee, other_employee
@@ -104,13 +90,8 @@ class TestSalaryInsightsApi:
             f"{salary_insights_url}?{SALARY_MAX_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}",
             format=JSON_FORMAT,
         )
-        data = response.data[DATA_KEY]
 
-        assert response.status_code == status.HTTP_200_OK
-        assert data[TOTAL_EMPLOYEES_FIELD] == 1
-        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert_salary_insights_filtered_to_employee(response)
 
     def test_returns_metrics_filtered_by_salary_range(
         self, authenticated_client, salary_insights_url, employee, other_employee
@@ -121,13 +102,8 @@ class TestSalaryInsightsApi:
             f"{SALARY_MAX_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}",
             format=JSON_FORMAT,
         )
-        data = response.data[DATA_KEY]
 
-        assert response.status_code == status.HTTP_200_OK
-        assert data[TOTAL_EMPLOYEES_FIELD] == 1
-        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert_salary_insights_filtered_to_employee(response)
 
     def test_returns_metrics_with_all_filters_applied(
         self, authenticated_client, salary_insights_url, employee, other_employee
@@ -141,13 +117,8 @@ class TestSalaryInsightsApi:
             f"{SALARY_MAX_QUERY_PARAM}={TEST_EMPLOYEE_SALARY}",
             format=JSON_FORMAT,
         )
-        data = response.data[DATA_KEY]
 
-        assert response.status_code == status.HTTP_200_OK
-        assert data[TOTAL_EMPLOYEES_FIELD] == 1
-        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
-        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert_salary_insights_filtered_to_employee(response)
 
     def test_returns_null_metrics_and_zero_total_when_no_employees_exist(
         self, authenticated_client, salary_insights_url
