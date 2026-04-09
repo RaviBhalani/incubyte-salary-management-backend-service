@@ -38,6 +38,18 @@ class TestSalaryInsightsApi:
         assert data[AVG_SALARY_FIELD] == round((TEST_EMPLOYEE_SALARY + OTHER_EMPLOYEE_SALARY) / 2)
         assert data[TOTAL_EMPLOYEES_FIELD] == 2
 
+    def test_excludes_soft_deleted_employees_from_metrics(
+        self, authenticated_client, salary_insights_url, employee, deleted_employee
+    ):
+        response = authenticated_client.get(salary_insights_url, format=JSON_FORMAT)
+        data = response.data[DATA_KEY]
+
+        assert response.status_code == status.HTTP_200_OK
+        assert data[TOTAL_EMPLOYEES_FIELD] == 1
+        assert data[MIN_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[MAX_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+        assert data[AVG_SALARY_FIELD] == TEST_EMPLOYEE_SALARY
+
     def test_returns_metrics_filtered_by_job_title(
         self, authenticated_client, salary_insights_url, employee, other_employee
     ):
