@@ -68,7 +68,7 @@ WSGI_APPLICATION = "incubyte_salary_management_backend_service.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -143,6 +143,7 @@ Static Files Settings Start.
 
 STATIC_URL = "/static/"
 STATIC_ROOT = join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
