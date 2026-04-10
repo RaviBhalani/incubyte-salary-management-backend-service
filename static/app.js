@@ -199,7 +199,7 @@ function buildQueryString(filters) {
 // ── Insights cards ────────────────────────
 
 function renderInsightsCards(data) {
-  const fmt = (val) => (val != null ? Number(val).toLocaleString() : '—');
+  const fmt = (val) => (val != null ? '$' + Number(val).toLocaleString() : '—');
   document.getElementById('insight-min').textContent   = fmt(data?.min_salary);
   document.getElementById('insight-max').textContent   = fmt(data?.max_salary);
   document.getElementById('insight-avg').textContent   = fmt(data?.avg_salary);
@@ -235,7 +235,7 @@ function renderEmployeeTable(employees) {
       <td>${escapeHtml(emp.job_title)}</td>
       <td>${escapeHtml(emp.department)}</td>
       <td>${escapeHtml(emp.country)}</td>
-      <td class="text-end">${Number(emp.salary).toLocaleString()}</td>
+      <td class="text-end">$${Number(emp.salary).toLocaleString()}</td>
       <td>${emp.joining_date}</td>
       <td>
         <button
