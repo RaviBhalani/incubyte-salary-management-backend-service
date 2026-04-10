@@ -190,3 +190,93 @@ function buildQueryString(filters) {
   }
   return params.toString();
 }
+
+/* ─────────────────────────────────────────
+   Step 4.5 — UI Renderers
+   ───────────────────────────────────────── */
+
+// ── Insights cards ────────────────────────
+
+function renderInsightsCards(data) {
+  const fmt = (val) => (val != null ? Number(val).toLocaleString() : '—');
+  document.getElementById('insight-min').textContent   = fmt(data?.min_salary);
+  document.getElementById('insight-max').textContent   = fmt(data?.max_salary);
+  document.getElementById('insight-avg').textContent   = fmt(data?.avg_salary);
+  document.getElementById('insight-total').textContent = data?.total_employees ?? '—';
+}
+
+function resetInsightsCards() {
+  ['insight-min', 'insight-max', 'insight-avg', 'insight-total'].forEach(
+    (id) => (document.getElementById(id).textContent = '—'),
+  );
+}
+
+// ── Employee table ────────────────────────
+
+function renderEmployeeTable(employees) {
+  const tbody = document.getElementById('employee-tbody');
+
+  if (employees === null) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">Loading\u2026</td></tr>';
+    return;
+  }
+
+  if (employees.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">No employees found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = employees.map((emp) => `
+    <tr>
+      <td>${emp.employee_id}</td>
+      <td>${escapeHtml(emp.name)}</td>
+      <td>${escapeHtml(emp.email)}</td>
+      <td>${escapeHtml(emp.job_title)}</td>
+      <td>${escapeHtml(emp.department)}</td>
+      <td>${escapeHtml(emp.country)}</td>
+      <td class="text-end">${Number(emp.salary).toLocaleString()}</td>
+      <td>${emp.joining_date}</td>
+      <td>
+        <button
+          class="btn btn-outline-primary btn-sm edit-btn"
+          data-id="${emp.id}"
+          data-employee="${escapeAttr(JSON.stringify(emp))}"
+        >Edit</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── Pagination ────────────────────────────
+
+function renderPagination(count, currentPage) {
+  const section  = document.getElementById('pagination-section');
+  const infoEl   = document.getElementById('pagination-info');
+  const prevBtn  = document.getElementById('prev-page-btn');
+  const nextBtn  = document.getElementById('next-page-btn');
+
+  if (count === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display  = '';
+  infoEl.textContent     = `Page ${currentPage} · ${count.toLocaleString()} total employees`;
+  prevBtn.disabled       = currentPage === 1;
+  nextBtn.disabled       = currentPage * PAGE_SIZE >= count;
+}
+
+// ── Escape helpers ────────────────────────
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(str) {
+  return String(str ?? '').replace(/"/g, '&quot;');
+}
