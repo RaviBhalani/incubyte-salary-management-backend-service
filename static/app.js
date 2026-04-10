@@ -61,7 +61,7 @@ async function login(email, password) {
     const body = await res.json();
 
     if (res.ok) {
-      saveTokens(body.data.access, body.data.refresh);
+      saveTokens(body.access, body.refresh);
       showApp();
       loadAll();
     } else {
@@ -111,7 +111,7 @@ async function authFetch(url, options = {}) {
     });
     if (refreshRes.ok) {
       const refreshBody = await refreshRes.json();
-      saveTokens(refreshBody.data.access, refreshBody.data.refresh ?? getRefreshToken());
+      saveTokens(refreshBody.access, refreshBody.refresh ?? getRefreshToken());
       refreshed = true;
     }
   } catch {
