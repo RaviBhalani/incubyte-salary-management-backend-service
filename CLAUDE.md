@@ -47,32 +47,36 @@ Configuration is loaded from `.envs/<environment>/api.env` and `.envs/<environme
 ### Goal
 Salary management tool for an organisation with 10,000 employees. Target user: **HR Manager**.
 
-### Employee model (from `docs/ER Diagram.drawio.png`)
+### Employee model
 
 | Field | Type | Notes |
 |-------|------|-------|
 | `id` | int PK, auto | |
-| `employee_id` | varchar(13) | unique, not null |
+| `employee_id` | varchar(13) | unique; auto-generated as `EMP<n>` on create |
 | `name` | varchar(300) | not null |
-| `email` | varchar | unique, not null |
-| `job_title` | varchar(150) | not null |
-| `department` | varchar(150) | not null |
-| `salary` | integer | not null |
+| `email` | varchar | unique; auto-generated as `emp_<n>@incubyte.com` on create |
+| `job_title` | varchar (choices) | `JobTitle` TextChoices enum |
+| `department` | varchar (choices) | `Department` TextChoices enum; must match `job_title` via `JOB_TITLE_DEPARTMENT_MAP` |
+| `salary` | PositiveIntegerField | min: 10,000 / max: 1,000,000,000 |
 | `joining_date` | date | not null |
-| `country` | varchar(150) | not null |
+| `country` | varchar (choices) | `Country` TextChoices enum |
+| `is_active` | boolean | soft-delete flag (from `IsActive` mixin); default True |
 
-The `User` table in the ER diagram is the standard Django auth `User` (already in `apps/user/`). `Employee` is a separate model with no FK to `User`.
+`employee_id` and `email` are read-only — auto-assigned by `EmployeeCreateSerializer.create()` using `Employee.get_max_employee_number()`.
 
-### Features to build
-1. **Employee CRUD** — add, view, update, delete employees
-2. **Salary insights** — min/max/average salary per country; average salary for a job title in a country
-3. **Seed script** — populate 10,000 employees from `first_names.txt` + `last_names.txt`; performance matters (assume it's run repeatedly)
+The `User` table is the standard Django auth `User` (already in `apps/user/`). `Employee` is a separate model with no FK to `User`.
+
+### Features implemented
+1. **Employee CRUD** — `POST /api/v1/employee/`, `GET /api/v1/employee/`, `GET /api/v1/employee/<pk>/`, `PATCH /api/v1/employee/<pk>/`. No hard-delete; soft-delete via `is_active=False`.
+2. **Salary insights** — `GET /api/v1/employee/salary-insights/` returns `min_salary`, `max_salary`, `avg_salary` (rounded), `total_employees`. Supports all employee filters.
+3. **Seed script** — `python manage.py seed_employees` bulk-creates 10,000 employees using `bulk_create` (batch size 500). Safe to run repeatedly — picks up from the current max employee number. Reads names from `apps/employee/data/first_names.txt` and `last_names.txt`.
+4. **Generate name files** — `python manage.py generate_name_files` creates the name text files using Faker (`en_IN` locale).
 
 ## Architecture
 
 ### App layout
 
-Django apps live under `apps/`. Every domain app follows a fixed 5-file pattern:
+Django apps live under `apps/`. Every domain app follows a base 5-file pattern, with optional extras:
 
 | File | Purpose |
 |------|---------|
@@ -81,6 +85,8 @@ Django apps live under `apps/`. Every domain app follows a fixed 5-file pattern:
 | `serializers.py` | DRF ModelSerializers |
 | `views.py` | Viewsets inheriting from `BaseViewset` |
 | `urls.py` | `DefaultRouter` registration |
+| `filters.py` _(optional)_ | `django-filters` FilterSet classes |
+| `management/commands/` _(optional)_ | Custom management commands |
 
 ### Core abstractions (`apps/core/`)
 
@@ -133,6 +139,25 @@ All API routes are versioned under `api/v1/` (`V1_API_PREFIX` constant). Each ap
 - `logger_mixin.py` — `LoggingMixin` for request/response logging in viewsets
 - `utils.py` — `send_message_to_teams()` posts Adaptive Cards to a Teams webhook (gated by `ENABLE_TEAMS_NOTIFICATIONS`)
 
+### Employee app specifics
+
+**Filtering** (`EmployeeFilter`): exact match on `job_title`, `department`, `country`; range filter on `salary` via `?salary_min=` and `?salary_max=`.
+
+**Search** (`SearchFilter`): `?search=` matches against `employee_id`, `name`, `email`.
+
+**Serializers**: `EmployeeCreateSerializer` (auto-assigns `employee_id` + `email`, `is_active` read-only) and `EmployeeUpdateSerializer` (allows updating all editable fields). Both validate `department` matches `job_title` via `JOB_TITLE_DEPARTMENT_MAP`.
+
+**Salary insights**: custom `@action` at `GET /api/v1/employee/salary-insights/`. Runs `aggregate()` over the filtered queryset. URL name: `employee-salary-insights`.
+
+**Management commands**:
+```bash
+# Seed 10,000 employees (idempotent — picks up from max employee number)
+docker exec incubyte_salary_management_backend_service_api python manage.py seed_employees
+
+# Regenerate name source files (first_names.txt / last_names.txt)
+docker exec incubyte_salary_management_backend_service_api python manage.py generate_name_files
+```
+
 ### Testing
 
 Pytest with `pytest-django`; config in `pytest.ini` (`testpaths = tests apps`).
@@ -145,6 +170,7 @@ apps/<app>/tests/
 ├── conftest.py        # app-level fixtures (URLs, payloads, model fixtures)
 ├── constants.py       # app-specific test strings/values
 ├── factories.py       # keyword-only factory functions for model creation
+├── helpers.py         # domain-specific assertion helpers (optional)
 └── api/
     ├── __init__.py
     └── test_<feature>_api.py
@@ -209,10 +235,10 @@ assert any(PASSWORD_FIELD in error for error in response.data["error_list"])
 
 ### Adding a new CRUD resource
 
-Use the `/drf-crud` skill or follow the `Tag` example in `.claude/skills/drf-crud/SKILL.md`:
+Use the `/drf-crud` skill or follow the `Employee` app as reference (`apps/employee/`):
 
 1. `docker exec incubyte_salary_management_backend_service_api python manage.py startapp <appname> apps/<appname>`
-2. Create `constants.py`, `models.py`, `serializers.py`, `views.py`, `urls.py`, `apps.py` following the Tag pattern.
+2. Create `constants.py`, `models.py`, `serializers.py`, `views.py`, `urls.py`, `apps.py` following the Employee pattern.
 3. Add `"apps.<appname>"` to `PROJECT_APPS` in `settings.py`.
 4. Include `apps.<appname>.urls` in `incubyte_salary_management_backend_service/urls.py` under `V1_API_PREFIX`.
 5. `docker exec incubyte_salary_management_backend_service_api python manage.py makemigrations <appname> && python manage.py migrate`
