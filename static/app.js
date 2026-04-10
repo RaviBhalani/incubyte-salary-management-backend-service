@@ -185,7 +185,8 @@ function buildQueryString(filters) {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(filters)) {
     if (value === '' || value === null || value === undefined) continue;
-    if (key === 'page' && value === 1) continue;
+    // always include page so the API returns paginated results (25 per page)
+    // rather than all records at once
     params.append(key, value);
   }
   return params.toString();
@@ -280,3 +281,221 @@ function escapeHtml(str) {
 function escapeAttr(str) {
   return String(str ?? '').replace(/"/g, '&quot;');
 }
+
+/* ─────────────────────────────────────────
+   Step 4.6 — Event Wiring & loadAll()
+   ───────────────────────────────────────── */
+
+const JOB_TITLE_DEPARTMENT_MAP = {
+  SOFTWARE_ENGINEER:        'ENGINEERING',
+  SENIOR_SOFTWARE_ENGINEER: 'ENGINEERING',
+  DATA_ANALYST:             'ENGINEERING',
+  ENGINEERING_MANAGER:      'MANAGEMENT',
+  PRODUCT_MANAGER:          'MANAGEMENT',
+  HR_MANAGER:               'HR',
+};
+
+// ── loadAll ───────────────────────────────
+
+async function loadAll() {
+  renderEmployeeTable(null);
+
+  try {
+    const [empBody, insightsBody] = await Promise.all([
+      fetchEmployees(currentFilters),
+      fetchSalaryInsights(currentFilters),
+    ]);
+
+    if (!empBody || !insightsBody) return; // authFetch already handled logout
+
+    // Handle both paginated ({ count, results }) and plain-array responses
+    const employees = Array.isArray(empBody.data) ? empBody.data : (empBody.data.results ?? []);
+    const count     = Array.isArray(empBody.data) ? empBody.data.length : (empBody.data.count ?? 0);
+
+    renderEmployeeTable(employees);
+    renderInsightsCards(insightsBody.data);
+    renderPagination(count, currentFilters.page);
+  } catch {
+    document.getElementById('employee-tbody').innerHTML =
+      '<tr><td colspan="9" class="text-center text-danger py-4">Failed to load employees. Please refresh.</td></tr>';
+    resetInsightsCards();
+  }
+}
+
+// ── Helpers ───────────────────────────────
+
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+function readFilters() {
+  currentFilters.search     = document.getElementById('filter-search').value.trim();
+  currentFilters.job_title  = document.getElementById('filter-job-title').value;
+  currentFilters.department = document.getElementById('filter-department').value;
+  currentFilters.country    = document.getElementById('filter-country').value;
+  currentFilters.salary_min = document.getElementById('filter-salary-min').value;
+  currentFilters.salary_max = document.getElementById('filter-salary-max').value;
+}
+
+function resetFilters() {
+  ['filter-search', 'filter-job-title', 'filter-department',
+   'filter-country', 'filter-salary-min', 'filter-salary-max'].forEach(
+    (id) => (document.getElementById(id).value = ''),
+  );
+  Object.assign(currentFilters, {
+    search: '', job_title: '', department: '', country: '',
+    salary_min: '', salary_max: '', page: 1,
+  });
+}
+
+function getFormData(form) {
+  const data = {};
+  new FormData(form).forEach((value, key) => {
+    if (value !== '') data[key] = value;
+  });
+  return data;
+}
+
+function showModalError(errorElId, errorList) {
+  const el  = document.getElementById(errorElId);
+  const msg = errorList?.[0] ?? 'Something went wrong.';
+  el.textContent = typeof msg === 'object' ? Object.values(msg)[0] : msg;
+  el.classList.remove('d-none');
+}
+
+function hideModalError(errorElId) {
+  const el = document.getElementById(errorElId);
+  el.classList.add('d-none');
+  el.textContent = '';
+}
+
+function prefillEditForm(emp) {
+  document.getElementById('edit-employee-id').value           = emp.id;
+  const form = document.getElementById('edit-form');
+  form.querySelector('[name="name"]').value         = emp.name;
+  form.querySelector('[name="job_title"]').value    = emp.job_title;
+  form.querySelector('[name="department"]').value   = emp.department;
+  form.querySelector('[name="salary"]').value       = emp.salary;
+  form.querySelector('[name="joining_date"]').value = emp.joining_date;
+  form.querySelector('[name="country"]').value      = emp.country;
+}
+
+// ── Event wiring ──────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Init: restore session if token exists
+  if (getAccessToken()) {
+    showApp();
+    loadAll();
+  } else {
+    showLogin();
+  }
+
+  // Login form
+  document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    login(
+      document.getElementById('login-email').value.trim(),
+      document.getElementById('login-password').value,
+    );
+  });
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  // Apply filters
+  document.getElementById('apply-filters-btn').addEventListener('click', () => {
+    readFilters();
+    currentFilters.page = 1;
+    loadAll();
+  });
+
+  // Clear filters
+  document.getElementById('clear-filters-btn').addEventListener('click', () => {
+    resetFilters();
+    loadAll();
+  });
+
+  // Search (debounced 400 ms)
+  document.getElementById('filter-search').addEventListener(
+    'input',
+    debounce(() => {
+      currentFilters.search = document.getElementById('filter-search').value.trim();
+      currentFilters.page   = 1;
+      loadAll();
+    }, 400),
+  );
+
+  // Pagination
+  document.getElementById('prev-page-btn').addEventListener('click', () => {
+    currentFilters.page--;
+    loadAll();
+  });
+
+  document.getElementById('next-page-btn').addEventListener('click', () => {
+    currentFilters.page++;
+    loadAll();
+  });
+
+  // Create modal: clear form and errors on open
+  document.getElementById('create-modal').addEventListener('show.bs.modal', () => {
+    document.getElementById('create-form').reset();
+    hideModalError('create-error');
+  });
+
+  // Create form submit
+  document.getElementById('create-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideModalError('create-error');
+    const body = await createEmployee(getFormData(e.target));
+    if (!body) return; // authFetch handled logout
+    if (body.error_list?.length) { showModalError('create-error', body.error_list); return; }
+    bootstrap.Modal.getInstance(document.getElementById('create-modal')).hide();
+    loadAll();
+  });
+
+  // Edit form submit
+  document.getElementById('edit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideModalError('edit-error');
+    const id   = document.getElementById('edit-employee-id').value;
+    const body = await updateEmployee(id, getFormData(e.target));
+    if (!body) return;
+    if (body.error_list?.length) { showModalError('edit-error', body.error_list); return; }
+    bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+    loadAll();
+  });
+
+  // Deactivate button
+  document.getElementById('deactivate-btn').addEventListener('click', async () => {
+    if (!confirm('Deactivate this employee?')) return;
+    const id   = document.getElementById('edit-employee-id').value;
+    const body = await updateEmployee(id, { is_active: false });
+    if (!body) return;
+    bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+    loadAll();
+  });
+
+  // Edit button — delegated on tbody
+  document.getElementById('employee-tbody').addEventListener('click', (e) => {
+    const btn = e.target.closest('.edit-btn');
+    if (!btn) return;
+    prefillEditForm(JSON.parse(btn.dataset.employee));
+    hideModalError('edit-error');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('edit-modal')).show();
+  });
+
+  // Job title → department auto-fill (both modals)
+  document.querySelectorAll('.job-title-select').forEach((select) => {
+    select.addEventListener('change', () => {
+      const dept = JOB_TITLE_DEPARTMENT_MAP[select.value] ?? '';
+      select.closest('form').querySelector('.dept-select').value = dept;
+    });
+  });
+
+});
