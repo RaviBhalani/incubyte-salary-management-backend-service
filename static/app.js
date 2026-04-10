@@ -137,3 +137,37 @@ async function authFetch(url, options = {}) {
   }
   return res;
 }
+
+/* ─────────────────────────────────────────
+   Step 4.3 — Data Fetchers
+   ───────────────────────────────────────── */
+
+async function fetchEmployees(params) {
+  const res = await authFetch(`${ENDPOINTS.employees}?${buildQueryString(params)}`);
+  if (!res) return null;
+  return res.json();
+}
+
+async function fetchSalaryInsights(params) {
+  const res = await authFetch(`${ENDPOINTS.salaryInsights}?${buildQueryString(params)}`);
+  if (!res) return null;
+  return res.json();
+}
+
+async function createEmployee(data) {
+  const res = await authFetch(ENDPOINTS.employees, {
+    method: 'POST',
+    body:   JSON.stringify(data),
+  });
+  if (!res) return null;
+  return res.json();
+}
+
+async function updateEmployee(id, data) {
+  const res = await authFetch(`${ENDPOINTS.employees}${id}/`, {
+    method: 'PATCH',
+    body:   JSON.stringify(data),
+  });
+  if (!res) return null;
+  return res.json();
+}
