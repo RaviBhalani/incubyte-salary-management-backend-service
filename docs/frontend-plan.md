@@ -146,7 +146,11 @@ Single HTML file. Two top-level sections toggled by JS:
 
 ### Step 4 — `static/app.js`
 
-**CONFIG**
+---
+
+#### Step 4.1 — Config & Token Utilities
+
+**Config constants**
 ```js
 const ENDPOINTS = {
   login:          '/api/v1/login/',
@@ -154,45 +158,128 @@ const ENDPOINTS = {
   employees:      '/api/v1/employee/',
   salaryInsights: '/api/v1/employee/salary-insights/',
 };
+const PAGE_SIZE = 25;
 ```
 
-**Auth helpers**
+**localStorage helpers** — pure get/set/clear, no logic:
 - `getAccessToken()` / `getRefreshToken()` — read from `localStorage`
-- `saveTokens(access, refresh)` — write to `localStorage`
-- `clearTokens()` — remove from `localStorage`
-- `login(email, password)` — POST to login endpoint, save tokens, show app, call `loadAll()`
-- `logout()` — `clearTokens()`, show login section
-- `authFetch(url, options)` — wraps `fetch` with `Authorization: Bearer` header; on 401, tries token refresh and retries once; on second 401, calls `logout()`
+- `saveTokens(access, refresh)` — write both keys
+- `clearTokens()` — remove both keys
 
-**Data fetchers**
-- `fetchEmployees(params)` — `authFetch` GET `/api/v1/employee/` with query string
-- `createEmployee(data)` — `authFetch` POST `/api/v1/employee/`
-- `updateEmployee(id, data)` — `authFetch` PATCH `/api/v1/employee/{id}/`
-- `fetchSalaryInsights(params)` — `authFetch` GET `/api/v1/employee/salary-insights/` with same params
+**Section toggle helpers**:
+- `showLogin()` — show `#login-section`, hide `#app-section`
+- `showApp()` — hide `#login-section`, show `#app-section`
 
-**UI renderers**
-- `renderInsightsCards(data)` — populate 4 card values
-- `renderEmployeeTable(employees)` — build tbody rows; each row has Edit button
-- `renderPagination(count, currentPage)` — simple prev/next controls
-- `buildQueryString(filters)` — serialize filter state to URL query string
+---
 
-**State**: single `currentFilters` object (filter values + current page)
+#### Step 4.2 — Auth Flow
 
-**Event wiring (on `DOMContentLoaded`)**
-- Login form submit → `login()`
-- Logout button → `logout()`
-- Apply Filters → reset page to 1, `loadAll()`
-- Clear button → reset all filters, `loadAll()`
-- Search input (debounced 400 ms) → `loadAll()`
-- Pagination prev/next → adjust page, `loadAll()`
-- Create modal submit → `createEmployee()`, close modal, `loadAll()`
-- Edit modal submit → `updateEmployee()`, close modal, `loadAll()`
-- Edit modal Deactivate → `updateEmployee(id, { is_active: false })`, close modal, `loadAll()`
-- Edit button click (delegated on tbody) → open edit modal pre-filled
+**`login(email, password)`**
+- POST `{ email, password }` to login endpoint with `Content-Type: application/json`
+- Happy path: save tokens → `showApp()` → `loadAll()`
+- Error — invalid credentials (400/401): extract first message from `error_list` and display it in `#login-error`
+- Error — network failure: show "Unable to reach server. Please try again." in `#login-error`
+- Always re-enable the submit button after the call resolves
 
-**`loadAll()`** — calls `fetchEmployees` + `fetchSalaryInsights` in parallel with current filters, then calls `renderEmployeeTable` + `renderInsightsCards`.
+**`logout()`**
+- `clearTokens()` → `showLogin()`
+- Clear `#login-error` so it doesn't linger on next login attempt
 
-**Init on page load**: if `getAccessToken()` exists → show app + `loadAll()`; else → show login.
+**`authFetch(url, options)`**
+- Attaches `Authorization: Bearer <access_token>` header to every request
+- On 401: attempts silent token refresh (POST `{ refresh }` to refresh endpoint)
+  - Refresh succeeds: save new access token, retry original request once
+  - Refresh fails (400/401 or network error): call `logout()` and show a one-time "Your session has expired. Please log in again." message in `#login-error`
+- On any other non-2xx: return the response as-is so callers can handle it
+- On network error (`fetch` throws): re-throw so callers can show a generic error
+
+---
+
+#### Step 4.3 — Data Fetchers
+
+All functions use `authFetch` and return the parsed JSON response body. Callers handle errors.
+
+- `fetchEmployees(params)` — GET `ENDPOINTS.employees + '?' + buildQueryString(params)`
+- `fetchSalaryInsights(params)` — GET `ENDPOINTS.salaryInsights + '?' + buildQueryString(params)`
+- `createEmployee(data)` — POST `ENDPOINTS.employees` with JSON body
+- `updateEmployee(id, data)` — PATCH `ENDPOINTS.employees + id + '/'` with JSON body
+
+---
+
+#### Step 4.4 — State & Query Builder
+
+**State** — single module-level object:
+```js
+const currentFilters = {
+  search: '', job_title: '', department: '', country: '',
+  salary_min: '', salary_max: '', page: 1,
+};
+```
+
+**`buildQueryString(filters)`**
+- Iterate entries, skip blank/null/undefined values and `page: 1` (omitting `page` returns all results per the API's opt-in pagination — only include `page` when `> 1`)
+- Return a `URLSearchParams`-encoded string
+
+---
+
+#### Step 4.5 — UI Renderers
+
+**`renderInsightsCards(data)`**
+- Populate `#insight-min`, `#insight-max`, `#insight-avg` using `toLocaleString()` for number formatting (e.g. `1,234,567`)
+- Populate `#insight-total` as a plain integer
+- Edge case — null/undefined values (e.g. no employees match filters): display `—` instead of `null`
+
+**`renderEmployeeTable(employees)`**
+- Build `<tr>` per employee: `employee_id`, `name`, `email`, `job_title`, `department`, `country`, salary (formatted with `toLocaleString()`), `joining_date`, Edit button
+- Empty state — `employees` is an empty array: render a single `<tr><td colspan="9" class="text-center text-muted">No employees found.</td></tr>`
+- Loading state — called with `null` before fetch resolves: render a single row with "Loading…" (reuse what the HTML already has)
+- Each Edit button carries `data-id` and a `data-employee` attribute (JSON-encoded row data) for pre-filling the modal
+
+**`renderPagination(count, currentPage)`**
+- Update `#pagination-info` text: `Showing page X · Y total employees`
+- Disable Prev button when `currentPage === 1`
+- Disable Next button when `currentPage * PAGE_SIZE >= count`
+- Edge case — `count` is 0: hide the pagination section entirely
+
+---
+
+#### Step 4.6 — Event Wiring & `loadAll()`
+
+**`loadAll()`**
+- Set table to loading state (`renderEmployeeTable(null)`)
+- Fire `fetchEmployees` and `fetchSalaryInsights` in parallel with `Promise.all` using current filters
+- On success: call `renderEmployeeTable`, `renderInsightsCards`, `renderPagination`
+- On any error (network or non-2xx): render error row in table — "Failed to load employees. Please refresh." — and reset insight cards to `—`
+
+**Job title → department auto-fill** (applied to both Create and Edit modals)
+- Wire `change` on each `.job-title-select`; on change, auto-select the corresponding `.dept-select` value using the map:
+  ```
+  SOFTWARE_ENGINEER, SENIOR_SOFTWARE_ENGINEER, DATA_ANALYST → ENGINEERING
+  ENGINEERING_MANAGER, PRODUCT_MANAGER              → MANAGEMENT
+  HR_MANAGER                                        → HR
+  ```
+- Department remains editable — auto-fill is a convenience, not a lock
+
+**Event bindings (all inside `DOMContentLoaded`)**
+
+| Event | Element | Action |
+|-------|---------|--------|
+| `submit` | `#login-form` | `preventDefault`, disable button, call `login()` |
+| `click` | `#logout-btn` | `logout()` |
+| `click` | `#apply-filters-btn` | Read filter inputs → `currentFilters`, reset page to 1, `loadAll()` |
+| `click` | `#clear-filters-btn` | Reset all filter inputs + `currentFilters`, `loadAll()` |
+| `input` | `#filter-search` | Debounced 400 ms → update `currentFilters.search`, reset page to 1, `loadAll()` |
+| `click` | `#prev-page-btn` | `currentFilters.page--`, `loadAll()` |
+| `click` | `#next-page-btn` | `currentFilters.page++`, `loadAll()` |
+| `submit` | `#create-form` | `preventDefault`, call `createEmployee()`, on success close modal + `loadAll()`, on error display `error_list` in `#create-error` |
+| `submit` | `#edit-form` | `preventDefault`, call `updateEmployee()`, on success close modal + `loadAll()`, on error display `error_list` in `#edit-error` |
+| `click` | `#deactivate-btn` | `confirm("Deactivate this employee?")` → on confirm call `updateEmployee(id, { is_active: false })`, close modal, `loadAll()` |
+| `click` | `#employee-tbody` (delegated) | If `event.target` is an Edit button, pre-fill `#edit-form` from `data-employee`, set `#edit-employee-id`, open modal |
+| `change` | `.job-title-select` (both modals) | Auto-fill department |
+
+**Init on page load**
+- If `getAccessToken()` exists → `showApp()` + `loadAll()`
+- Else → `showLogin()`
 
 ---
 
