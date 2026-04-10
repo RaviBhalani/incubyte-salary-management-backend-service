@@ -1,4 +1,5 @@
-/* Login page — full-height centered layout */
+/* ── Login page ──────────────────────────── */
+
 .login-wrapper {
   min-height: 100vh;
   display: flex;
@@ -10,4 +11,34 @@
 .login-card {
   width: 100%;
   max-width: 400px;
+}
+
+/* ── Insights cards ──────────────────────── */
+
+#insights-section .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* ── Employee table ──────────────────────── */
+
+#employee-tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+/* ── Filter panel ────────────────────────── */
+
+#filter-section {
+  background-color: #fdfdfd;
+}
+
+/* ── Navbar spacing ──────────────────────── */
+
+.navbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
