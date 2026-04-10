@@ -171,3 +171,22 @@ async function updateEmployee(id, data) {
   if (!res) return null;
   return res.json();
 }
+
+/* ─────────────────────────────────────────
+   Step 4.4 — State & Query Builder
+   ───────────────────────────────────────── */
+
+const currentFilters = {
+  search: '', job_title: '', department: '', country: '',
+  salary_min: '', salary_max: '', page: 1,
+};
+
+function buildQueryString(filters) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value === '' || value === null || value === undefined) continue;
+    if (key === 'page' && value === 1) continue;
+    params.append(key, value);
+  }
+  return params.toString();
+}
