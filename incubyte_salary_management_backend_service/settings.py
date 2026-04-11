@@ -2,7 +2,7 @@ from os.path import join
 
 from apps.employee.constants import EMPLOYEE_APP
 from apps.user.constants import USER_APP
-from .configurations.common_settings import BASE_DIR, APP_TITLE
+from .configurations.common_settings import BASE_DIR, APP_TITLE, ENVIRONMENT
 from .configurations.database_settings import postgres_settings
 from .configurations.env_helpers import get_env_var, get_bool_env_var, get_list_env_var, get_int_env_var
 from .configurations.jwt_settings import SIMPLE_JWT
@@ -10,11 +10,11 @@ from .configurations.logger_settings import LOGGING
 from .configurations.rest_framework_settings import REST_FRAMEWORK
 from .configurations.spectacular_settings import SPECTACULAR_SETTINGS
 
-""" 
+
+"""
 Application Definition Start.
 """
 
-ENVIRONMENT = get_env_var("ENVIRONMENT")
 SECRET_KEY = get_env_var("SECRET_KEY")
 DEBUG = get_bool_env_var("DEBUG")
 

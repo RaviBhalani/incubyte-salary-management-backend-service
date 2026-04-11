@@ -1,7 +1,8 @@
 from datetime import timedelta
 from os.path import join
 
-from .common_settings import BASE_DIR
+from apps.core.constants import LOCAL
+from .common_settings import BASE_DIR, ENVIRONMENT
 from .env_helpers import get_int_env_var, get_env_var
 
 
@@ -22,11 +23,14 @@ refresh_token_params = {
 SLIDING_TOKEN_LIFETIME_MINUTES = get_int_env_var("SLIDING_TOKEN_LIFETIME_MINUTES")
 SLIDING_TOKEN_REFRESH_LIFETIME_DAYS = get_int_env_var("SLIDING_TOKEN_REFRESH_LIFETIME_DAYS")
 
-RSA_PRIVATE_KEY = get_env_var("RSA_PRIVATE_KEY")
-RSA_PUBLIC_KEY = get_env_var("RSA_PUBLIC_KEY")
-
-RSA_PRIVATE_KEY_PATH= join(BASE_DIR, '.encryption_keys', RSA_PRIVATE_KEY)
-RSA_PUBLIC_KEY_PATH = join(BASE_DIR, '.encryption_keys', RSA_PUBLIC_KEY)
+if ENVIRONMENT == LOCAL:
+    RSA_PRIVATE_KEY_PATH = join(BASE_DIR, '.encryption_keys', get_env_var("RSA_PRIVATE_KEY"))
+    RSA_PUBLIC_KEY_PATH = join(BASE_DIR, '.encryption_keys', get_env_var("RSA_PUBLIC_KEY"))
+    RSA_SIGNING_KEY = open(RSA_PRIVATE_KEY_PATH).read()
+    RSA_VERIFYING_KEY = open(RSA_PUBLIC_KEY_PATH).read()
+else:
+    RSA_SIGNING_KEY = get_env_var("RSA_PRIVATE_KEY").replace("\\n", "\n")
+    RSA_VERIFYING_KEY = get_env_var("RSA_PUBLIC_KEY").replace("\\n", "\n")
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(**access_token_params),
@@ -47,6 +51,6 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=SLIDING_TOKEN_LIFETIME_MINUTES),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=SLIDING_TOKEN_REFRESH_LIFETIME_DAYS),
-    "SIGNING_KEY": open(RSA_PRIVATE_KEY_PATH).read(),
-    "VERIFYING_KEY": open(RSA_PUBLIC_KEY_PATH).read(),
+    "SIGNING_KEY": RSA_SIGNING_KEY,
+    "VERIFYING_KEY": RSA_VERIFYING_KEY,
 }
