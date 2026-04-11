@@ -3,6 +3,8 @@ from django.urls import reverse
 
 from apps.employee.constants import EMPLOYEE_DETAIL_NAME, EMPLOYEE_LIST_NAME, SALARY_INSIGHTS_ACTION_NAME
 from apps.employee.tests.constants import (
+    DELETED_EMPLOYEE_EMAIL,
+    DELETED_EMPLOYEE_ID,
     OTHER_EMPLOYEE_COUNTRY,
     OTHER_EMPLOYEE_DEPARTMENT,
     OTHER_EMPLOYEE_EMAIL,
@@ -67,7 +69,11 @@ def other_employee():
 
 @pytest.fixture
 def deleted_employee():
-    return create_employee(is_active=False)
+    return create_employee(
+        employee_id=DELETED_EMPLOYEE_ID,
+        email=DELETED_EMPLOYEE_EMAIL,
+        is_active=False,
+    )
 
 
 @pytest.fixture
