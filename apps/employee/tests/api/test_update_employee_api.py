@@ -10,6 +10,9 @@ from apps.employee.tests.constants import (
     INVALID_DEPARTMENT,
     INVALID_JOB_TITLE,
     JOB_TITLE_FIELD,
+    JOINING_DATE_AT_MIN,
+    JOINING_DATE_BEFORE_MIN,
+    JOINING_DATE_FIELD,
     MISMATCHED_JOB_TITLE,
     NAME_FIELD,
     NEGATIVE_SALARY,
@@ -134,3 +137,32 @@ class TestUpdateEmployeeApi:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_returns_error_for_joining_date_before_1901(
+            self,
+            authenticated_client,
+            employee_detail_url,
+            employee,
+    ):
+        response = authenticated_client.patch(
+            employee_detail_url,
+            {JOINING_DATE_FIELD: JOINING_DATE_BEFORE_MIN},
+            format=JSON_FORMAT,
+        )
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_updates_employee_with_joining_date_at_minimum_boundary(
+            self,
+            authenticated_client,
+            employee_detail_url,
+            employee,
+    ):
+        response = authenticated_client.patch(
+            employee_detail_url,
+            {JOINING_DATE_FIELD: JOINING_DATE_AT_MIN},
+            format=JSON_FORMAT,
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data[DATA_KEY][JOINING_DATE_FIELD] == JOINING_DATE_AT_MIN
