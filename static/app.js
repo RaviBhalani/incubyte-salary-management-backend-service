@@ -575,25 +575,37 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('create-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideModalError('create-error');
-    const body = await createEmployee(getFormData(e.target));
-    if (!body) return; // authFetch handled logout
-    if (body.error_list?.length) { showModalError('create-error', body.error_list); return; }
-    bootstrap.Modal.getInstance(document.getElementById('create-modal')).hide();
-    showToast('Employee created successfully.');
-    loadAll();
+    const submitBtn = e.target.querySelector('[type="submit"]');
+    submitBtn.disabled = true;
+    try {
+      const body = await createEmployee(getFormData(e.target));
+      if (!body) return; // authFetch handled logout
+      if (body.error_list?.length) { showModalError('create-error', body.error_list); return; }
+      bootstrap.Modal.getInstance(document.getElementById('create-modal')).hide();
+      showToast('Employee created successfully.');
+      loadAll();
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 
   // Edit form submit
   document.getElementById('edit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideModalError('edit-error');
-    const id   = document.getElementById('edit-employee-id').value;
-    const body = await updateEmployee(id, getFormData(e.target));
-    if (!body) return;
-    if (body.error_list?.length) { showModalError('edit-error', body.error_list); return; }
-    bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
-    showToast('Employee updated successfully.');
-    loadAll();
+    const submitBtn = e.target.querySelector('[type="submit"]');
+    submitBtn.disabled = true;
+    try {
+      const id   = document.getElementById('edit-employee-id').value;
+      const body = await updateEmployee(id, getFormData(e.target));
+      if (!body) return;
+      if (body.error_list?.length) { showModalError('edit-error', body.error_list); return; }
+      bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+      showToast('Employee updated successfully.');
+      loadAll();
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 
   // Deactivate button — show confirmation modal
@@ -611,15 +623,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Confirm deactivation
   document.getElementById('confirm-deactivate-btn').addEventListener('click', async () => {
-    const id   = document.getElementById('edit-employee-id').value;
-    const body = await updateEmployee(id, { is_active: false });
-    if (!body) return; // 401 — already logged out
-    if (body.error_list?.length) { showModalError('deactivate-error', body.error_list); return; }
-    hideModalError('deactivate-error');
-    bootstrap.Modal.getInstance(document.getElementById('deactivate-modal')).hide();
-    bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
-    showToast('Employee deactivated successfully.');
-    loadAll();
+    const confirmBtn = document.getElementById('confirm-deactivate-btn');
+    confirmBtn.disabled = true;
+    try {
+      const id   = document.getElementById('edit-employee-id').value;
+      const body = await updateEmployee(id, { is_active: false });
+      if (!body) return; // 401 — already logged out
+      if (body.error_list?.length) { showModalError('deactivate-error', body.error_list); return; }
+      hideModalError('deactivate-error');
+      bootstrap.Modal.getInstance(document.getElementById('deactivate-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+      showToast('Employee deactivated successfully.');
+      loadAll();
+    } finally {
+      confirmBtn.disabled = false;
+    }
   });
 
   // Edit button — delegated on tbody
