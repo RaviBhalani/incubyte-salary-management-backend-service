@@ -413,6 +413,8 @@ function resetFilters() {
     salary_min: '', salary_max: '', page: 1,
   });
   populateFilterJobTitles('');
+  const maxEl = document.getElementById('filter-salary-max');
+  maxEl.nextElementSibling.textContent = '10,000 \u2013 1,000,000';
   ['filter-salary-min', 'filter-salary-max'].forEach(
     (id) => document.getElementById(id).classList.remove('is-invalid'),
   );
@@ -491,14 +493,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Logout
   document.getElementById('logout-btn').addEventListener('click', logout);
 
-  // Salary range validation
+  // Salary range validation (individual range + cross-validation)
   const updateApplyBtn = () => {
-    document.getElementById('apply-filters-btn').disabled =
-      document.getElementById('filter-salary-min').classList.contains('is-invalid') ||
-      document.getElementById('filter-salary-max').classList.contains('is-invalid');
+    const minEl = document.getElementById('filter-salary-min');
+    const maxEl = document.getElementById('filter-salary-max');
+    const maxFeedbackEl = maxEl.nextElementSibling;
+
+    const minInvalid = validateSalaryInput(minEl);
+    const maxInvalid = validateSalaryInput(maxEl);
+
+    // Reset cross-validation feedback before re-evaluating
+    maxFeedbackEl.textContent = '10,000 \u2013 1,000,000';
+
+    // Cross-validation: both filled, both in range, but min > max
+    const crossInvalid =
+      minEl.value !== '' && maxEl.value !== '' &&
+      !minInvalid && !maxInvalid &&
+      Number(minEl.value) > Number(maxEl.value);
+
+    if (crossInvalid) {
+      maxEl.classList.add('is-invalid');
+      maxFeedbackEl.textContent = 'Must be \u2265 Min Salary';
+    }
+
+    document.getElementById('apply-filters-btn').disabled = minInvalid || maxInvalid || crossInvalid;
   };
-  document.getElementById('filter-salary-min').addEventListener('input', (e) => { validateSalaryInput(e.target); updateApplyBtn(); });
-  document.getElementById('filter-salary-max').addEventListener('input', (e) => { validateSalaryInput(e.target); updateApplyBtn(); });
+  document.getElementById('filter-salary-min').addEventListener('input', updateApplyBtn);
+  document.getElementById('filter-salary-max').addEventListener('input', updateApplyBtn);
 
   // Modal salary validation
   ['create-form', 'edit-form'].forEach((formId) => {
