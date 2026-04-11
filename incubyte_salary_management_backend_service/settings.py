@@ -1,8 +1,9 @@
 from os.path import join
 
+from apps.core.constants import LOCAL
 from apps.employee.constants import EMPLOYEE_APP
 from apps.user.constants import USER_APP
-from .configurations.common_settings import BASE_DIR, APP_TITLE
+from .configurations.common_settings import BASE_DIR, APP_TITLE, ENVIRONMENT
 from .configurations.database_settings import postgres_settings
 from .configurations.env_helpers import get_env_var, get_bool_env_var, get_list_env_var, get_int_env_var
 from .configurations.jwt_settings import SIMPLE_JWT
@@ -10,15 +11,14 @@ from .configurations.logger_settings import LOGGING
 from .configurations.rest_framework_settings import REST_FRAMEWORK
 from .configurations.spectacular_settings import SPECTACULAR_SETTINGS
 
-""" 
+
+"""
 Application Definition Start.
 """
 
-ENVIRONMENT = get_env_var("ENVIRONMENT")
 SECRET_KEY = get_env_var("SECRET_KEY")
 DEBUG = get_bool_env_var("DEBUG")
 
-ENABLE_TEAMS_NOTIFICATIONS = get_env_var("ENABLE_TEAMS_NOTIFICATIONS")
 ENABLE_DJANGO_ADMIN = get_bool_env_var("ENABLE_DJANGO_ADMIN")
 ENABLE_SWAGGER = get_bool_env_var("ENABLE_SWAGGER")
 
@@ -49,6 +49,7 @@ INSTALLED_APPS = CORE_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -144,26 +145,21 @@ Static Files Settings Start.
 STATIC_URL = "/static/"
 STATIC_ROOT = join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+if ENVIRONMENT == LOCAL:
+    _staticfiles_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+else:
+    _staticfiles_backend = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": _staticfiles_backend,
     },
 }
 
 """
 Static Files Settings End.
-"""
-
-
-"""
-Teams Integration Settings Start
-"""
-
-TEAMS_WEBHOOK_URL = get_env_var("TEAMS_WEBHOOK_URL")
-
-"""
-Teams Integration Settings End
 """

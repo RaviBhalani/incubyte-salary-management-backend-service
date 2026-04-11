@@ -551,9 +551,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const dept = document.getElementById('filter-department').value;
     populateFilterJobTitles(dept);
     currentFilters.job_title  = '';
-    currentFilters.department = dept;
-    currentFilters.page       = 1;
-    loadAll();
   });
 
   // Apply filters

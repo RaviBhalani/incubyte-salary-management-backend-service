@@ -83,22 +83,6 @@ Constants for pagination settings ends
 
 
 """
-Constants for Teams integration starts
-"""
-
-TEAMS_MESSAGE_TYPE = "message"
-TEAMS_CONTENT_TYPE = "application/vnd.microsoft.card.adaptive"
-TEAMS_CARD_TYPE = "AdaptiveCard"
-TEAMS_BLOCK_TYPE = "TextBlock"
-TEAMS_SCHEMA = "http://adaptivecards.io/schemas/adaptive-card.json"
-TEAMS_CARD_VERSION = "1.0"
-
-"""
-Constants for Teams integration ends
-"""
-
-
-"""
 Constants for API client starts
 """
 

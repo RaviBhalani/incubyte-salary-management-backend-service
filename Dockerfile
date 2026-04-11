@@ -37,6 +37,8 @@ COPY manage.py .
 COPY incubyte_salary_management_backend_service/ ./incubyte_salary_management_backend_service/
 COPY apps/ ./apps/
 COPY server.sh .
+COPY static/ ./static/
+COPY templates/ ./templates/
 
 # Fix permissions
 RUN chown -R appuser:appgroup /code
