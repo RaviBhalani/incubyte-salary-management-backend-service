@@ -17,6 +17,8 @@ DOCS_URL = "docs/"
 V1_DOCS_URL = build_url(V1_API_PREFIX, DOCS_URL)
 SWAGGER_UI_V1_NAME = "swagger-ui-v1"
 
+INDEX_TEMPLATE = "index.html"
+
 """
 URLs end.
 """

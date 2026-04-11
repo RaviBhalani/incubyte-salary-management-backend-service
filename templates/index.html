@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salary Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'style.css' %}" />
+</head>
+<body>
+
+  <!-- ── Login Section ── -->
+  <div id="login-section" class="login-wrapper">
+    <div class="card login-card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="card-title mb-4 text-center">Salary Management</h4>
+        <form id="login-form" novalidate>
+          <div class="mb-3">
+            <label for="login-email" class="form-label">Email</label>
+            <input type="email" id="login-email" class="form-control" placeholder="hr@incubyte.com" required />
+          </div>
+          <div class="mb-3">
+            <label for="login-password" class="form-label">Password</label>
+            <div class="input-group">
+              <input type="password" id="login-password" class="form-control" required />
+              <button type="button" class="btn btn-outline-secondary" id="toggle-password" tabindex="-1" aria-label="Toggle password visibility">
+                <i class="bi bi-eye" id="toggle-password-icon"></i>
+              </button>
+            </div>
+          </div>
+          <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+          <button type="submit" class="btn btn-primary w-100">Sign in</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── App Section ── -->
+  <div id="app-section" style="display:none">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-primary px-3">
+      <span class="navbar-brand mb-0 h5">Salary Management</span>
+      <button id="logout-btn" class="btn btn-outline-light btn-sm">Logout</button>
+    </nav>
+
+    <div class="container-fluid py-4">
+
+      <!-- Salary Insights Cards -->
+      <h6 class="fw-semibold border-start border-3 border-primary ps-2 mb-2">Salary Insights</h6>
+      <div id="insights-section" class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card h-100 text-center">
+            <div class="card-body">
+              <p class="card-text text-muted small mb-1">Min Salary (USD)</p>
+              <h5 id="insight-min" class="card-title mb-0">—</h5>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card h-100 text-center">
+            <div class="card-body">
+              <p class="card-text text-muted small mb-1">Max Salary (USD)</p>
+              <h5 id="insight-max" class="card-title mb-0">—</h5>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card h-100 text-center">
+            <div class="card-body">
+              <p class="card-text text-muted small mb-1">Avg Salary (USD)</p>
+              <h5 id="insight-avg" class="card-title mb-0">—</h5>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card h-100 text-center">
+            <div class="card-body">
+              <p class="card-text text-muted small mb-1">Total Employees</p>
+              <h5 id="insight-total" class="card-title mb-0">—</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter + Search Panel -->
+      <div id="filter-section" class="card mb-4">
+        <div class="card-body">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+              <label class="form-label small mb-1">Search</label>
+              <input type="text" id="filter-search" class="form-control form-control-sm" placeholder="ID, name or email" />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small mb-1">Department</label>
+              <select id="filter-department" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="ENGINEERING">Engineering</option>
+                <option value="MANAGEMENT">Management</option>
+                <option value="HR">HR</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small mb-1">Job Title</label>
+              <select id="filter-job-title" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="SOFTWARE_ENGINEER">Software Engineer</option>
+                <option value="SENIOR_SOFTWARE_ENGINEER">Senior Software Engineer</option>
+                <option value="ENGINEERING_MANAGER">Engineering Manager</option>
+                <option value="DATA_ANALYST">Data Analyst</option>
+                <option value="PRODUCT_MANAGER">Product Manager</option>
+                <option value="HR_MANAGER">HR Manager</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small mb-1">Country</label>
+              <select id="filter-country" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="UNITED_STATES">United States</option>
+                <option value="INDIA">India</option>
+                <option value="UNITED_KINGDOM">United Kingdom</option>
+                <option value="GERMANY">Germany</option>
+                <option value="CANADA">Canada</option>
+                <option value="AUSTRALIA">Australia</option>
+              </select>
+            </div>
+            <div class="col-3 col-md-1">
+              <label class="form-label small mb-1">Min Salary (USD)</label>
+              <input type="number" id="filter-salary-min" class="form-control form-control-sm" placeholder="10000" min="10000" max="1000000" />
+              <div class="invalid-feedback">10,000 – 1,000,000</div>
+            </div>
+            <div class="col-3 col-md-1">
+              <label class="form-label small mb-1">Max Salary (USD)</label>
+              <input type="number" id="filter-salary-max" class="form-control form-control-sm" placeholder="1000000" min="10000" max="1000000" />
+              <div class="invalid-feedback">10,000 – 1,000,000</div>
+            </div>
+            <div class="col-6 col-md-1 d-flex gap-1">
+              <button id="apply-filters-btn" class="btn btn-primary btn-sm w-50">Apply</button>
+              <button id="clear-filters-btn" class="btn btn-outline-secondary btn-sm w-50">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Table -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-semibold border-start border-3 border-primary ps-2 mb-0">Employees</h6>
+        <button id="create-employee-btn" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#create-modal">
+          + Create Employee
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Employee ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Job Title</th>
+              <th>Department</th>
+              <th>Country</th>
+              <th>Salary (USD)</th>
+              <th>Joining Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="employee-tbody">
+            <tr><td colspan="9" class="text-center text-muted py-4">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination-section" class="d-flex justify-content-between align-items-center mt-2">
+        <span id="pagination-info" class="text-muted small"></span>
+        <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center gap-2">
+            <label for="page-size-select" class="text-muted small mb-0">Rows per page</label>
+            <select id="page-size-select" class="form-select form-select-sm" style="width: auto;">
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div class="d-flex gap-2">
+            <button id="prev-page-btn" class="btn btn-outline-secondary btn-sm" disabled>&#8592; Prev</button>
+            <button id="next-page-btn" class="btn btn-outline-secondary btn-sm" disabled>Next &#8594;</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /container-fluid -->
+  </div><!-- /app-section -->
+
+  <!-- ── Create Employee Modal ── -->
+  <div class="modal fade" id="create-modal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createModalLabel">Create Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="create-form" novalidate>
+          <div class="modal-body">
+            <div id="create-error" class="alert alert-danger d-none"></div>
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" name="name" class="form-control" maxlength="300" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Department</label>
+              <select name="department" class="form-select modal-dept-select" required>
+                <option value="">Select…</option>
+                <option value="ENGINEERING">Engineering</option>
+                <option value="MANAGEMENT">Management</option>
+                <option value="HR">HR</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Job Title</label>
+              <select name="job_title" class="form-select modal-job-title-select" disabled required>
+                <option value="">Select a department first</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Salary (USD)</label>
+              <input type="number" name="salary" class="form-control" min="10000" max="1000000" required />
+              <div class="invalid-feedback">10,000 – 1,000,000</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Joining Date</label>
+              <input type="date" name="joining_date" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Country</label>
+              <select name="country" class="form-select" required>
+                <option value="">Select…</option>
+                <option value="UNITED_STATES">United States</option>
+                <option value="INDIA">India</option>
+                <option value="UNITED_KINGDOM">United Kingdom</option>
+                <option value="GERMANY">Germany</option>
+                <option value="CANADA">Canada</option>
+                <option value="AUSTRALIA">Australia</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit Employee Modal ── -->
+  <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Edit Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="edit-form" novalidate>
+          <input type="hidden" id="edit-employee-id" />
+          <div class="modal-body">
+            <div id="edit-error" class="alert alert-danger d-none"></div>
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input type="text" name="name" class="form-control" maxlength="300" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Department</label>
+              <select name="department" class="form-select modal-dept-select" required>
+                <option value="">Select…</option>
+                <option value="ENGINEERING">Engineering</option>
+                <option value="MANAGEMENT">Management</option>
+                <option value="HR">HR</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Job Title</label>
+              <select name="job_title" class="form-select modal-job-title-select" required>
+                <option value="">Select…</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Salary (USD)</label>
+              <input type="number" name="salary" class="form-control" min="10000" max="1000000" required />
+              <div class="invalid-feedback">10,000 – 1,000,000</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Joining Date</label>
+              <input type="date" name="joining_date" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Country</label>
+              <select name="country" class="form-select" required>
+                <option value="">Select…</option>
+                <option value="UNITED_STATES">United States</option>
+                <option value="INDIA">India</option>
+                <option value="UNITED_KINGDOM">United Kingdom</option>
+                <option value="GERMANY">Germany</option>
+                <option value="CANADA">Canada</option>
+                <option value="AUSTRALIA">Australia</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" id="deactivate-btn" class="btn btn-danger btn-sm">Deactivate</button>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Deactivate Confirmation Modal ── -->
+  <div class="modal fade" id="deactivate-modal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deactivateModalLabel">Deactivate Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="deactivate-error" class="alert alert-danger d-none mb-2"></div>
+          Are you sure you want to deactivate this employee?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="confirm-deactivate-btn" class="btn btn-danger">Deactivate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Success Toast ── -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="success-toast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="success-toast-body"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'app.js' %}"></script>
+</body>
+</html>

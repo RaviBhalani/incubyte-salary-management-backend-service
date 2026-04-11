@@ -1,0 +1,67 @@
+/* ── Login page ──────────────────────────── */
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ── Insights cards ──────────────────────── */
+
+#insights-section .card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* ── Employee table ──────────────────────── */
+
+#employee-tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+/* ── Filter panel ────────────────────────── */
+
+#filter-section {
+  background-color: #fdfdfd;
+}
+
+/* ── Stacked modal (deactivate confirmation above edit) ─── */
+
+#deactivate-modal {
+  z-index: 1065;
+}
+
+.modal-backdrop ~ .modal-backdrop {
+  z-index: 1060;
+}
+
+#edit-modal.modal-dimmed {
+  pointer-events: none;
+}
+
+#edit-modal.modal-dimmed .modal-content::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* ── Navbar spacing ──────────────────────── */
+
+.navbar {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

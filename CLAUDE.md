@@ -57,7 +57,7 @@ Salary management tool for an organisation with 10,000 employees. Target user: *
 | `email` | varchar | unique; auto-generated as `emp_<n>@incubyte.com` on create |
 | `job_title` | varchar (choices) | `JobTitle` TextChoices enum |
 | `department` | varchar (choices) | `Department` TextChoices enum; must match `job_title` via `JOB_TITLE_DEPARTMENT_MAP` |
-| `salary` | PositiveIntegerField | min: 10,000 / max: 1,000,000,000 |
+| `salary` | PositiveIntegerField | min: 10,000 / max: 1,000,000 |
 | `joining_date` | date | not null |
 | `country` | varchar (choices) | `Country` TextChoices enum |
 | `is_active` | boolean | soft-delete flag (from `IsActive` mixin); default True |

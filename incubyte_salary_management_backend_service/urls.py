@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from .constants import (
     ADMIN_URL,
+    INDEX_TEMPLATE,
     V1_API_PREFIX,
     V1_SCHEMA_URL,
     V1_DOCS_URL,
@@ -42,3 +44,4 @@ if settings.ENABLE_SWAGGER:
         ),
     ]
 urlpatterns += urlpatterns_v1
+urlpatterns += [path("", TemplateView.as_view(template_name=INDEX_TEMPLATE))]
