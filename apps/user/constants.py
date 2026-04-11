@@ -19,6 +19,9 @@ LOGIN_NAME = "token_obtain_pair"
 TOKEN_REFRESH_URL = "token-refresh/"
 TOKEN_REFRESH_NAME = "token_refresh"
 
+LOGOUT_URL = "logout/"
+LOGOUT_NAME = "token_blacklist"
+
 """
 URL constants end.
 """

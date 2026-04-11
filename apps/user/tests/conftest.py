@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from apps.user.constants import LOGIN_NAME, TOKEN_REFRESH_NAME
+from apps.user.constants import LOGIN_NAME, LOGOUT_NAME, TOKEN_REFRESH_NAME
 from apps.user.tests.constants import (
     LOGIN_TEST_USER_EMAIL,
     LOGIN_TEST_USER_PASSWORD,
@@ -17,6 +17,11 @@ def login_url():
 @pytest.fixture
 def token_refresh_url():
     return reverse(TOKEN_REFRESH_NAME)
+
+
+@pytest.fixture
+def logout_url():
+    return reverse(LOGOUT_NAME)
 
 
 @pytest.fixture
