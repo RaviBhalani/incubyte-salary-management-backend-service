@@ -145,12 +145,14 @@ async function authFetch(url, options = {}) {
 async function fetchEmployees(params) {
   const res = await authFetch(`${ENDPOINTS.employees}?${buildQueryString(params)}`);
   if (!res) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
 async function fetchSalaryInsights(params) {
   const res = await authFetch(`${ENDPOINTS.salaryInsights}?${buildQueryString(params)}`);
   if (!res) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
@@ -593,13 +595,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('deactivate-modal').addEventListener('hidden.bs.modal', () => {
     document.getElementById('edit-modal').classList.remove('modal-dimmed');
+    hideModalError('deactivate-error');
   });
 
   // Confirm deactivation
   document.getElementById('confirm-deactivate-btn').addEventListener('click', async () => {
     const id   = document.getElementById('edit-employee-id').value;
     const body = await updateEmployee(id, { is_active: false });
-    if (!body) return;
+    if (!body) return; // 401 — already logged out
+    if (body.error_list?.length) { showModalError('deactivate-error', body.error_list); return; }
+    hideModalError('deactivate-error');
     bootstrap.Modal.getInstance(document.getElementById('deactivate-modal')).hide();
     bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
     showToast('Employee deactivated successfully.');
@@ -610,8 +615,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('employee-tbody').addEventListener('click', (e) => {
     const btn = e.target.closest('.edit-btn');
     if (!btn) return;
+    let emp;
+    try { emp = JSON.parse(btn.dataset.employee); } catch {
+      showToast('Could not open employee. Please refresh.');
+      return;
+    }
     const form = document.getElementById('edit-form');
-    prefillEditForm(JSON.parse(btn.dataset.employee));
+    prefillEditForm(emp);
     hideModalError('edit-error');
     form.querySelector('[name="salary"]').classList.remove('is-invalid');
     form.querySelector('[type="submit"]').disabled = false;
