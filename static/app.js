@@ -430,9 +430,7 @@ function resetFilters() {
 
 function getFormData(form) {
   const data = {};
-  new FormData(form).forEach((value, key) => {
-    if (value !== '') data[key] = value;
-  });
+  new FormData(form).forEach((value, key) => { data[key] = value; });
   return data;
 }
 
