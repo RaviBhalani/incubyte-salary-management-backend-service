@@ -421,6 +421,11 @@ function showModalError(errorElId, errorList) {
   el.classList.remove('d-none');
 }
 
+function showToast(message) {
+  document.getElementById('success-toast-body').textContent = message;
+  bootstrap.Toast.getOrCreateInstance(document.getElementById('success-toast')).show();
+}
+
 function hideModalError(errorElId) {
   const el = document.getElementById(errorElId);
   el.classList.add('d-none');
@@ -561,6 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!body) return; // authFetch handled logout
     if (body.error_list?.length) { showModalError('create-error', body.error_list); return; }
     bootstrap.Modal.getInstance(document.getElementById('create-modal')).hide();
+    showToast('Employee created successfully.');
     loadAll();
   });
 
@@ -573,16 +579,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!body) return;
     if (body.error_list?.length) { showModalError('edit-error', body.error_list); return; }
     bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+    showToast('Employee updated successfully.');
     loadAll();
   });
 
-  // Deactivate button
-  document.getElementById('deactivate-btn').addEventListener('click', async () => {
-    if (!confirm('Deactivate this employee?')) return;
+  // Deactivate button — show confirmation modal
+  document.getElementById('deactivate-btn').addEventListener('click', () => {
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('deactivate-modal')).show();
+  });
+
+  document.getElementById('deactivate-modal').addEventListener('show.bs.modal', () => {
+    document.getElementById('edit-modal').classList.add('modal-dimmed');
+  });
+  document.getElementById('deactivate-modal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('edit-modal').classList.remove('modal-dimmed');
+  });
+
+  // Confirm deactivation
+  document.getElementById('confirm-deactivate-btn').addEventListener('click', async () => {
     const id   = document.getElementById('edit-employee-id').value;
     const body = await updateEmployee(id, { is_active: false });
     if (!body) return;
+    bootstrap.Modal.getInstance(document.getElementById('deactivate-modal')).hide();
     bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+    showToast('Employee deactivated successfully.');
     loadAll();
   });
 
