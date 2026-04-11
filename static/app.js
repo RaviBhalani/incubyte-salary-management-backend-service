@@ -405,6 +405,15 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
+  // Password show/hide toggle
+  document.getElementById('toggle-password').addEventListener('click', () => {
+    const passwordInput = document.getElementById('login-password');
+    const icon = document.getElementById('toggle-password-icon');
+    const isHidden = passwordInput.type === 'password';
+    passwordInput.type = isHidden ? 'text' : 'password';
+    icon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+  });
+
   // Logout
   document.getElementById('logout-btn').addEventListener('click', logout);
 
