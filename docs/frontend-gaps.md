@@ -60,23 +60,7 @@ Files to change:
 
 ---
 
-## 4. UX BUG — Filter State Inconsistency (Department Auto-Loads; Others Don't)
-
-**Severity:** Medium
-
-**What's missing:**
-The department dropdown's `change` handler (`app.js:504–511`) immediately calls `loadAll()` after updating only `currentFilters.department` and `currentFilters.job_title`. It does **not** call `readFilters()` first. Any values the user has typed into salary min/max, country, or search — but hasn't clicked Apply for yet — are silently lost from the active filter state.
-
-**Example:** User types `salary_min=50000` → changes department → `loadAll()` runs with `currentFilters.salary_min = ''` (stale). The salary filter is ignored.
-
-**Fix:** Call `readFilters()` at the top of the department `change` handler before updating department/job_title, then call `loadAll()`.
-
-Files to change:
-- `static/app.js` — department `change` event listener (~line 504)
-
----
-
-## 5. UX GAP — Edit Modal Shows Stale Employee Data
+## 4. UX GAP — Edit Modal Shows Stale Employee Data
 
 **Severity:** Medium
 
@@ -113,6 +97,5 @@ Files to change:
 | 1 | No logout/token-blacklist endpoint | High | Yes | Yes |
 | 2 | Double-submit on Create/Edit/Deactivate | High | No | Yes |
 | 3 | Salary min > max gives silent empty result | Medium | No | Yes |
-| 4 | Department filter loads with stale salary/country state | Medium | No | Yes |
-| 5 | Edit modal uses stale table-row data | Medium | No | Yes |
-| 6 | Only first validation error displayed | Low | No | Yes |
+| 4 | Edit modal uses stale table-row data | Medium | No | Yes |
+| 5 | Only first validation error displayed | Low | No | Yes |
