@@ -40,7 +40,15 @@ docker exec -it incubyte_salary_management_backend_service_api python manage.py 
 
 ### Environment files
 
-Configuration is loaded from `.envs/<environment>/api.env` and `.envs/<environment>/db.env`. The local environment uses `.envs/local/`. RSA keys for JWT signing live in `.encryption_keys/jwt` (private) and `.encryption_keys/jwt.pub` (public).
+Configuration is loaded from `.envs/<environment>/api.env` and `.envs/<environment>/db.env`. The local environment uses `.envs/local/`. `.envs/api.env` is the template for non-local environments.
+
+**RSA keys (JWT signing):**
+- Local: `RSA_PRIVATE_KEY=jwt` and `RSA_PUBLIC_KEY=jwt.pub` are filenames resolved under `.encryption_keys/`
+- Non-local: `RSA_PRIVATE_KEY` and `RSA_PUBLIC_KEY` hold the full PEM key content as a single line with literal `\n` sequences (e.g. `-----BEGIN RSA PRIVATE KEY-----\nMII...`)
+
+**Database:**
+- Local: individual `POSTGRES_*` vars in `.envs/local/db.env`
+- Non-local: `POSTGRES_URL` in `api.env` (e.g. `postgres://user:password@host:5432/dbname`) parsed via `dj-database-url`
 
 ## Domain
 
@@ -109,8 +117,9 @@ This is enforced by `custom_exception_handlers.py` (registered as `EXCEPTION_HAN
 
 - Custom `User` model (`apps/user/`) uses `email` as `USERNAME_FIELD`; no `username` field.
 - JWT tokens with RS256 (asymmetric RSA signing via `djangorestframework-simplejwt[crypto]`).
-- Token blacklist is enabled with `BLACKLIST_AFTER_ROTATION = True`.
-- Token endpoints: `POST /api/v1/login/` and `POST /api/v1/token-refresh/`.
+- `ROTATE_REFRESH_TOKENS = True` and `BLACKLIST_AFTER_ROTATION = True` — each call to `token-refresh/` issues a new refresh token and blacklists the old one.
+- Token endpoints: `POST /api/v1/login/`, `POST /api/v1/token-refresh/`, `POST /api/v1/logout/`.
+- Token refresh is silent and automatic — `authFetch()` in `static/app.js` intercepts 401s, calls `token-refresh/`, and retries the original request. Refresh failure calls `logout()` and shows "Your session has expired."
 - All non-auth endpoints require `IsAuthenticated` by default (set in `REST_FRAMEWORK` settings).
 
 ### Settings structure
@@ -119,8 +128,8 @@ Main `settings.py` imports from `incubyte_salary_management_backend_service/conf
 
 | File | Governs |
 |------|---------|
-| `common_settings.py` | Installed apps, middleware, CORS, static files |
-| `database_settings.py` | PostgreSQL connection |
+| `common_settings.py` | `BASE_DIR`, `ENVIRONMENT`, installed apps, middleware, CORS, static files |
+| `database_settings.py` | PostgreSQL connection (local: individual vars; non-local: `POSTGRES_URL` via `dj-database-url`) |
 | `jwt_settings.py` | JWT lifetimes, RS256 keys |
 | `rest_framework_settings.py` | DRF defaults, exception handler, schema |
 | `logger_settings.py` | Log level (from `LOG_LEVEL` env var) |
@@ -130,6 +139,29 @@ Main `settings.py` imports from `incubyte_salary_management_backend_service/conf
 ### URL routing
 
 All API routes are versioned under `api/v1/` (`V1_API_PREFIX` constant). Each app's `urls.py` uses `DefaultRouter` and is included in the root `incubyte_salary_management_backend_service/urls.py`. Admin (`/admin/`) and Swagger (`/api/v1/docs/`) are conditionally enabled via `ENABLE_DJANGO_ADMIN` and `ENABLE_SWAGGER` feature flags.
+
+### Environment-aware configuration
+
+Several settings branch on `ENVIRONMENT` (defined in `common_settings.py`; uses `LOCAL` constant from `apps/core/constants.py`):
+
+| Setting | Local | Non-local |
+|---------|-------|-----------|
+| RSA keys | Read from `.encryption_keys/` files | PEM content from `RSA_PRIVATE_KEY` / `RSA_PUBLIC_KEY` env vars (literal `\n` replaced) |
+| Database | `POSTGRES_*` individual vars | `POSTGRES_URL` parsed by `dj-database-url` |
+| Static files storage | `StaticFilesStorage` (no manifest) | `CompressedManifestStaticFilesStorage` (hashed + compressed) |
+| Static files serving | `runserver` built-in | WhiteNoise middleware; `collectstatic` runs at container startup |
+
+### Frontend
+
+A minimal SPA served from Django itself — no Node.js, no build step.
+
+| File | Purpose |
+|------|---------|
+| `templates/index.html` | Single-page app shell (Bootstrap 5 via CDN) |
+| `static/app.js` | All fetch calls, auth logic, DOM rendering |
+| `static/style.css` | Minor Bootstrap overrides |
+
+`authFetch()` in `app.js` attaches `Authorization: Bearer` to every request and handles silent token refresh on 401. Static files are served by WhiteNoise in non-local environments; Django's `runserver` handles them locally.
 
 ### Utilities in `apps/core/`
 
