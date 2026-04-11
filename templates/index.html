@@ -93,6 +93,15 @@
               <input type="text" id="filter-search" class="form-control form-control-sm" placeholder="ID, name or email" />
             </div>
             <div class="col-6 col-md-2">
+              <label class="form-label small mb-1">Department</label>
+              <select id="filter-department" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="ENGINEERING">Engineering</option>
+                <option value="MANAGEMENT">Management</option>
+                <option value="HR">HR</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
               <label class="form-label small mb-1">Job Title</label>
               <select id="filter-job-title" class="form-select form-select-sm">
                 <option value="">All</option>
@@ -102,15 +111,6 @@
                 <option value="DATA_ANALYST">Data Analyst</option>
                 <option value="PRODUCT_MANAGER">Product Manager</option>
                 <option value="HR_MANAGER">HR Manager</option>
-              </select>
-            </div>
-            <div class="col-6 col-md-2">
-              <label class="form-label small mb-1">Department</label>
-              <select id="filter-department" class="form-select form-select-sm">
-                <option value="">All</option>
-                <option value="ENGINEERING">Engineering</option>
-                <option value="MANAGEMENT">Management</option>
-                <option value="HR">HR</option>
               </select>
             </div>
             <div class="col-6 col-md-2">
@@ -159,7 +159,7 @@
               <th>Job Title</th>
               <th>Department</th>
               <th>Country</th>
-              <th class="text-end">Salary (USD)</th>
+              <th>Salary (USD)</th>
               <th>Joining Date</th>
               <th></th>
             </tr>

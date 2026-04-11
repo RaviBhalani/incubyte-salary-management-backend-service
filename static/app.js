@@ -235,7 +235,7 @@ function renderEmployeeTable(employees) {
       <td>${escapeHtml(emp.job_title)}</td>
       <td>${escapeHtml(emp.department)}</td>
       <td>${escapeHtml(emp.country)}</td>
-      <td class="text-end">$${Number(emp.salary).toLocaleString()}</td>
+      <td>$${Number(emp.salary).toLocaleString()}</td>
       <td>${emp.joining_date}</td>
       <td>
         <button
@@ -295,6 +295,32 @@ const JOB_TITLE_DEPARTMENT_MAP = {
   HR_MANAGER:               'HR',
 };
 
+const DEPARTMENT_JOB_TITLES_MAP = {
+  ENGINEERING: [
+    { value: 'SOFTWARE_ENGINEER',        label: 'Software Engineer' },
+    { value: 'SENIOR_SOFTWARE_ENGINEER', label: 'Senior Software Engineer' },
+    { value: 'DATA_ANALYST',             label: 'Data Analyst' },
+  ],
+  MANAGEMENT: [
+    { value: 'ENGINEERING_MANAGER', label: 'Engineering Manager' },
+    { value: 'PRODUCT_MANAGER',     label: 'Product Manager' },
+  ],
+  HR: [
+    { value: 'HR_MANAGER', label: 'HR Manager' },
+  ],
+};
+
+function populateFilterJobTitles(department) {
+  const select = document.getElementById('filter-job-title');
+  const titles = department
+    ? (DEPARTMENT_JOB_TITLES_MAP[department] ?? [])
+    : Object.values(DEPARTMENT_JOB_TITLES_MAP).flat();
+  select.innerHTML =
+    '<option value="">All</option>' +
+    titles.map((t) => `<option value="${t.value}">${t.label}</option>`).join('');
+  select.value = '';
+}
+
 // ── loadAll ───────────────────────────────
 
 async function loadAll() {
@@ -350,6 +376,7 @@ function resetFilters() {
     search: '', job_title: '', department: '', country: '',
     salary_min: '', salary_max: '', page: 1,
   });
+  populateFilterJobTitles('');
 }
 
 function getFormData(form) {
@@ -416,6 +443,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Logout
   document.getElementById('logout-btn').addEventListener('click', logout);
+
+  // Department → cascade job title options
+  document.getElementById('filter-department').addEventListener('change', () => {
+    const dept = document.getElementById('filter-department').value;
+    populateFilterJobTitles(dept);
+    currentFilters.job_title  = '';
+    currentFilters.department = dept;
+    currentFilters.page       = 1;
+    loadAll();
+  });
 
   // Apply filters
   document.getElementById('apply-filters-btn').addEventListener('click', () => {
