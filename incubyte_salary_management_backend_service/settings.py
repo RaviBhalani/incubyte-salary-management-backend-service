@@ -1,5 +1,6 @@
 from os.path import join
 
+from apps.core.constants import LOCAL
 from apps.employee.constants import EMPLOYEE_APP
 from apps.user.constants import USER_APP
 from .configurations.common_settings import BASE_DIR, APP_TITLE, ENVIRONMENT
@@ -49,6 +50,7 @@ INSTALLED_APPS = CORE_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -144,12 +146,18 @@ Static Files Settings Start.
 STATIC_URL = "/static/"
 STATIC_ROOT = join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+if ENVIRONMENT == LOCAL:
+    _staticfiles_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+else:
+    _staticfiles_backend = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": _staticfiles_backend,
     },
 }
 
