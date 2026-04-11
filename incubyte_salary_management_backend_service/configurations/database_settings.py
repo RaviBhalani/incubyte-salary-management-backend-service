@@ -1,16 +1,18 @@
+import dj_database_url
+
+from apps.core.constants import LOCAL
+from .common_settings import ENVIRONMENT
 from .env_helpers import get_env_var, get_int_env_var
 
-POSTGRES_DB = get_env_var("POSTGRES_DB")
-POSTGRES_USER = get_env_var("POSTGRES_USER")
-POSTGRES_PASSWORD = get_env_var("POSTGRES_PASSWORD")
-POSTGRES_HOST = get_env_var("POSTGRES_HOST")
-POSTGRES_PORT = get_int_env_var("POSTGRES_PORT")
 
-postgres_settings = {
-    "ENGINE": "django.db.backends.postgresql_psycopg2",
-    "NAME": POSTGRES_DB,
-    "USER": POSTGRES_USER,
-    "PASSWORD": POSTGRES_PASSWORD,
-    "HOST": POSTGRES_HOST,
-    "PORT": POSTGRES_PORT
-}
+if ENVIRONMENT == LOCAL:
+    postgres_settings = {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": get_env_var("POSTGRES_DB"),
+        "USER": get_env_var("POSTGRES_USER"),
+        "PASSWORD": get_env_var("POSTGRES_PASSWORD"),
+        "HOST": get_env_var("POSTGRES_HOST"),
+        "PORT": get_int_env_var("POSTGRES_PORT"),
+    }
+else:
+    postgres_settings = dj_database_url.parse(get_env_var("POSTGRES_URL"))
