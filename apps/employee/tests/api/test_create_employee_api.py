@@ -13,6 +13,9 @@ from apps.employee.tests.constants import (
     INVALID_DEPARTMENT,
     INVALID_JOB_TITLE,
     JOB_TITLE_FIELD,
+    JOINING_DATE_AT_MIN,
+    JOINING_DATE_BEFORE_MIN,
+    JOINING_DATE_FIELD,
     MISMATCHED_DEPARTMENT,
     NEGATIVE_SALARY,
     SALARY_ABOVE_MAXIMUM,
@@ -88,3 +91,21 @@ class TestCreateEmployeeApi:
         response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
 
         assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_error_for_joining_date_before_1901(self, authenticated_client, employee_url, employee_payload):
+        employee_payload[JOINING_DATE_FIELD] = JOINING_DATE_BEFORE_MIN
+        response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
+
+        assert_error_response(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_creates_employee_with_joining_date_at_minimum_boundary(
+            self,
+            authenticated_client,
+            employee_url,
+            employee_payload,
+    ):
+        employee_payload[JOINING_DATE_FIELD] = JOINING_DATE_AT_MIN
+        response = authenticated_client.post(employee_url, employee_payload, format=JSON_FORMAT)
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data[DATA_KEY][JOINING_DATE_FIELD] == JOINING_DATE_AT_MIN
