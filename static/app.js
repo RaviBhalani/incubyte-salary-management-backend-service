@@ -232,9 +232,9 @@ function renderEmployeeTable(employees) {
       <td>${emp.employee_id}</td>
       <td>${escapeHtml(emp.name)}</td>
       <td>${escapeHtml(emp.email)}</td>
-      <td>${escapeHtml(emp.job_title)}</td>
-      <td>${escapeHtml(emp.department)}</td>
-      <td>${escapeHtml(emp.country)}</td>
+      <td>${escapeHtml(formatLabel(emp.job_title))}</td>
+      <td>${escapeHtml(formatLabel(emp.department))}</td>
+      <td>${escapeHtml(formatLabel(emp.country))}</td>
       <td>$${Number(emp.salary).toLocaleString()}</td>
       <td>${emp.joining_date}</td>
       <td>
@@ -268,6 +268,15 @@ function renderPagination(count, currentPage) {
 }
 
 // ── Escape helpers ────────────────────────
+
+function formatLabel(value) {
+  return String(value ?? '')
+    .split('_')
+    .map((word) => word.length <= 2
+      ? word.toUpperCase()
+      : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
 
 function escapeHtml(str) {
   return String(str ?? '')
@@ -309,6 +318,16 @@ const DEPARTMENT_JOB_TITLES_MAP = {
     { value: 'HR_MANAGER', label: 'HR Manager' },
   ],
 };
+
+function validateSalaryInput(inputEl) {
+  const val = Number(inputEl.value);
+  const outOfRange = inputEl.value !== '' && (val < 10000 || val > 1000000);
+  inputEl.classList.toggle('is-invalid', outOfRange);
+  const anyInvalid =
+    document.getElementById('filter-salary-min').classList.contains('is-invalid') ||
+    document.getElementById('filter-salary-max').classList.contains('is-invalid');
+  document.getElementById('apply-filters-btn').disabled = anyInvalid;
+}
 
 function populateFilterJobTitles(department) {
   const select = document.getElementById('filter-job-title');
@@ -377,6 +396,10 @@ function resetFilters() {
     salary_min: '', salary_max: '', page: 1,
   });
   populateFilterJobTitles('');
+  ['filter-salary-min', 'filter-salary-max'].forEach(
+    (id) => document.getElementById(id).classList.remove('is-invalid'),
+  );
+  document.getElementById('apply-filters-btn').disabled = false;
 }
 
 function getFormData(form) {
@@ -443,6 +466,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Logout
   document.getElementById('logout-btn').addEventListener('click', logout);
+
+  // Salary range validation
+  document.getElementById('filter-salary-min').addEventListener('input', (e) => validateSalaryInput(e.target));
+  document.getElementById('filter-salary-max').addEventListener('input', (e) => validateSalaryInput(e.target));
 
   // Department → cascade job title options
   document.getElementById('filter-department').addEventListener('change', () => {
