@@ -352,9 +352,10 @@ async function loadAll() {
   renderEmployeeTable(null);
 
   try {
+    const { page: _page, page_size: _page_size, ...insightFilters } = currentFilters;
     const [empBody, insightsBody] = await Promise.all([
       fetchEmployees(currentFilters),
-      fetchSalaryInsights(currentFilters),
+      fetchSalaryInsights(insightFilters),
     ]);
 
     if (!empBody || !insightsBody) return; // authFetch already handled logout
