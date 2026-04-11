@@ -96,6 +96,8 @@ Validation message constants start.
 """
 
 INVALID_JOB_TITLE_DEPARTMENT_MESSAGE = "Department does not match the job title."
+EMPLOYEE_JOINING_DATE_MIN_VALUE = date(1901, 1, 1)
+INVALID_JOINING_DATE_MESSAGE = "Joining date cannot be before 1st January 1901."
 
 """
 Validation message constants end.

@@ -4,7 +4,9 @@ from apps.employee.constants import (
     COMPANY_EMAIL_DOMAIN,
     EMPLOYEE_EMAIL_PREFIX,
     EMPLOYEE_ID_PREFIX,
+    EMPLOYEE_JOINING_DATE_MIN_VALUE,
     INVALID_JOB_TITLE_DEPARTMENT_MESSAGE,
+    INVALID_JOINING_DATE_MESSAGE,
     JOB_TITLE_DEPARTMENT_MAP,
 )
 from apps.employee.models import Employee
@@ -21,6 +23,11 @@ class EmployeeWriteSerializer(ModelSerializer):
     def _validate_job_title_department(job_title, department):
         if JOB_TITLE_DEPARTMENT_MAP.get(job_title) != department:
             raise ValidationError({"department": INVALID_JOB_TITLE_DEPARTMENT_MESSAGE})
+
+    def validate_joining_date(self, value):
+        if value < EMPLOYEE_JOINING_DATE_MIN_VALUE:
+            raise ValidationError(INVALID_JOINING_DATE_MESSAGE)
+        return value
 
 
 class EmployeeCreateSerializer(EmployeeWriteSerializer):
