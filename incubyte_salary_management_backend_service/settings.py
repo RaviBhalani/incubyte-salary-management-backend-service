@@ -19,7 +19,6 @@ Application Definition Start.
 SECRET_KEY = get_env_var("SECRET_KEY")
 DEBUG = get_bool_env_var("DEBUG")
 
-ENABLE_TEAMS_NOTIFICATIONS = get_env_var("ENABLE_TEAMS_NOTIFICATIONS")
 ENABLE_DJANGO_ADMIN = get_bool_env_var("ENABLE_DJANGO_ADMIN")
 ENABLE_SWAGGER = get_bool_env_var("ENABLE_SWAGGER")
 

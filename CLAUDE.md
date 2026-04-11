@@ -169,7 +169,7 @@ A minimal SPA served from Django itself — no Node.js, no build step.
 - `url_builder.py` — `build_url()` using `yarl` for safe URL + query param construction
 - `filters.py` — `NumberInFilter` for `?field__in=1,2,3` style filtering
 - `logger_mixin.py` — `LoggingMixin` for request/response logging in viewsets
-- `utils.py` — `send_message_to_teams()` posts Adaptive Cards to a Teams webhook (gated by `ENABLE_TEAMS_NOTIFICATIONS`)
+- `utils.py` — shared utility functions
 
 ### Employee app specifics
 
