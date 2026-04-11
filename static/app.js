@@ -317,10 +317,20 @@ function validateSalaryInput(inputEl) {
   const val = Number(inputEl.value);
   const outOfRange = inputEl.value !== '' && (val < 10000 || val > 1000000);
   inputEl.classList.toggle('is-invalid', outOfRange);
-  const anyInvalid =
-    document.getElementById('filter-salary-min').classList.contains('is-invalid') ||
-    document.getElementById('filter-salary-max').classList.contains('is-invalid');
-  document.getElementById('apply-filters-btn').disabled = anyInvalid;
+  return outOfRange;
+}
+
+function populateModalJobTitles(deptValue, jobTitleSelect) {
+  if (!deptValue) {
+    jobTitleSelect.innerHTML = '<option value="">Select a department first</option>';
+    jobTitleSelect.disabled  = true;
+    return;
+  }
+  const titles = DEPARTMENT_JOB_TITLES_MAP[deptValue] ?? [];
+  jobTitleSelect.innerHTML =
+    '<option value="">Select\u2026</option>' +
+    titles.map((t) => `<option value="${t.value}">${t.label}</option>`).join('');
+  jobTitleSelect.disabled = false;
 }
 
 function populateFilterJobTitles(department) {
@@ -421,8 +431,10 @@ function prefillEditForm(emp) {
   document.getElementById('edit-employee-id').value           = emp.id;
   const form = document.getElementById('edit-form');
   form.querySelector('[name="name"]').value         = emp.name;
-  form.querySelector('[name="job_title"]').value    = emp.job_title;
   form.querySelector('[name="department"]').value   = emp.department;
+  const jobTitleSelect = form.querySelector('[name="job_title"]');
+  populateModalJobTitles(emp.department, jobTitleSelect);
+  jobTitleSelect.value                              = emp.job_title;
   form.querySelector('[name="salary"]').value       = emp.salary;
   form.querySelector('[name="joining_date"]').value = emp.joining_date;
   form.querySelector('[name="country"]').value      = emp.country;
@@ -462,8 +474,23 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logout-btn').addEventListener('click', logout);
 
   // Salary range validation
-  document.getElementById('filter-salary-min').addEventListener('input', (e) => validateSalaryInput(e.target));
-  document.getElementById('filter-salary-max').addEventListener('input', (e) => validateSalaryInput(e.target));
+  const updateApplyBtn = () => {
+    document.getElementById('apply-filters-btn').disabled =
+      document.getElementById('filter-salary-min').classList.contains('is-invalid') ||
+      document.getElementById('filter-salary-max').classList.contains('is-invalid');
+  };
+  document.getElementById('filter-salary-min').addEventListener('input', (e) => { validateSalaryInput(e.target); updateApplyBtn(); });
+  document.getElementById('filter-salary-max').addEventListener('input', (e) => { validateSalaryInput(e.target); updateApplyBtn(); });
+
+  // Modal salary validation
+  ['create-form', 'edit-form'].forEach((formId) => {
+    const form        = document.getElementById(formId);
+    const salaryInput = form.querySelector('[name="salary"]');
+    const submitBtn   = form.querySelector('[type="submit"]');
+    salaryInput.addEventListener('input', () => {
+      submitBtn.disabled = validateSalaryInput(salaryInput);
+    });
+  });
 
   // Department → cascade job title options
   document.getElementById('filter-department').addEventListener('change', () => {
@@ -518,8 +545,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Create modal: clear form and errors on open
   document.getElementById('create-modal').addEventListener('show.bs.modal', () => {
-    document.getElementById('create-form').reset();
+    const form = document.getElementById('create-form');
+    form.reset();
     hideModalError('create-error');
+    populateModalJobTitles('', form.querySelector('[name="job_title"]'));
+    form.querySelector('[name="salary"]').classList.remove('is-invalid');
+    form.querySelector('[type="submit"]').disabled = false;
   });
 
   // Create form submit
@@ -559,16 +590,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('employee-tbody').addEventListener('click', (e) => {
     const btn = e.target.closest('.edit-btn');
     if (!btn) return;
+    const form = document.getElementById('edit-form');
     prefillEditForm(JSON.parse(btn.dataset.employee));
     hideModalError('edit-error');
+    form.querySelector('[name="salary"]').classList.remove('is-invalid');
+    form.querySelector('[type="submit"]').disabled = false;
     bootstrap.Modal.getOrCreateInstance(document.getElementById('edit-modal')).show();
   });
 
-  // Job title → department auto-fill (both modals)
-  document.querySelectorAll('.job-title-select').forEach((select) => {
-    select.addEventListener('change', () => {
-      const dept = JOB_TITLE_DEPARTMENT_MAP[select.value] ?? '';
-      select.closest('form').querySelector('.dept-select').value = dept;
+  // Department → cascade job title options (both modals)
+  document.querySelectorAll('.modal-dept-select').forEach((select) => {
+    select.addEventListener('change', (e) => {
+      const jobTitleSelect = e.target.closest('form').querySelector('.modal-job-title-select');
+      populateModalJobTitles(e.target.value, jobTitleSelect);
     });
   });
 

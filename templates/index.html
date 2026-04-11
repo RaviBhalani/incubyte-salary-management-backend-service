@@ -208,23 +208,11 @@
             <div id="create-error" class="alert alert-danger d-none"></div>
             <div class="mb-3">
               <label class="form-label">Name</label>
-              <input type="text" name="name" class="form-control" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Job Title</label>
-              <select name="job_title" class="form-select job-title-select" required>
-                <option value="">Select…</option>
-                <option value="SOFTWARE_ENGINEER">Software Engineer</option>
-                <option value="SENIOR_SOFTWARE_ENGINEER">Senior Software Engineer</option>
-                <option value="ENGINEERING_MANAGER">Engineering Manager</option>
-                <option value="DATA_ANALYST">Data Analyst</option>
-                <option value="PRODUCT_MANAGER">Product Manager</option>
-                <option value="HR_MANAGER">HR Manager</option>
-              </select>
+              <input type="text" name="name" class="form-control" maxlength="300" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Department</label>
-              <select name="department" class="form-select dept-select" required>
+              <select name="department" class="form-select modal-dept-select" required>
                 <option value="">Select…</option>
                 <option value="ENGINEERING">Engineering</option>
                 <option value="MANAGEMENT">Management</option>
@@ -232,8 +220,15 @@
               </select>
             </div>
             <div class="mb-3">
+              <label class="form-label">Job Title</label>
+              <select name="job_title" class="form-select modal-job-title-select" disabled required>
+                <option value="">Select a department first</option>
+              </select>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Salary (USD)</label>
               <input type="number" name="salary" class="form-control" min="10000" max="1000000" required />
+              <div class="invalid-feedback">10,000 – 1,000,000</div>
             </div>
             <div class="mb-3">
               <label class="form-label">Joining Date</label>
@@ -275,23 +270,11 @@
             <div id="edit-error" class="alert alert-danger d-none"></div>
             <div class="mb-3">
               <label class="form-label">Name</label>
-              <input type="text" name="name" class="form-control" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Job Title</label>
-              <select name="job_title" class="form-select job-title-select" required>
-                <option value="">Select…</option>
-                <option value="SOFTWARE_ENGINEER">Software Engineer</option>
-                <option value="SENIOR_SOFTWARE_ENGINEER">Senior Software Engineer</option>
-                <option value="ENGINEERING_MANAGER">Engineering Manager</option>
-                <option value="DATA_ANALYST">Data Analyst</option>
-                <option value="PRODUCT_MANAGER">Product Manager</option>
-                <option value="HR_MANAGER">HR Manager</option>
-              </select>
+              <input type="text" name="name" class="form-control" maxlength="300" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Department</label>
-              <select name="department" class="form-select dept-select" required>
+              <select name="department" class="form-select modal-dept-select" required>
                 <option value="">Select…</option>
                 <option value="ENGINEERING">Engineering</option>
                 <option value="MANAGEMENT">Management</option>
@@ -299,8 +282,15 @@
               </select>
             </div>
             <div class="mb-3">
+              <label class="form-label">Job Title</label>
+              <select name="job_title" class="form-select modal-job-title-select" required>
+                <option value="">Select…</option>
+              </select>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Salary (USD)</label>
               <input type="number" name="salary" class="form-control" min="10000" max="1000000" required />
+              <div class="invalid-feedback">10,000 – 1,000,000</div>
             </div>
             <div class="mb-3">
               <label class="form-label">Joining Date</label>
