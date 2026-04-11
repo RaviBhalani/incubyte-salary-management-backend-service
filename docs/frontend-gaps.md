@@ -76,7 +76,7 @@ Files to change:
 
 ---
 
-## 6. MINOR — Only First Error from `error_list` Shown
+## 5. MINOR — Only First Error from `error_list` Shown
 
 **Severity:** Low
 

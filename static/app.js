@@ -166,6 +166,13 @@ async function fetchSalaryInsights(params) {
   return res.json();
 }
 
+async function fetchEmployee(id) {
+  const res = await authFetch(`${ENDPOINTS.employees}${id}/`);
+  if (!res) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
 async function createEmployee(data) {
   const res = await authFetch(ENDPOINTS.employees, {
     method: 'POST',
@@ -662,20 +669,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Edit button — delegated on tbody
-  document.getElementById('employee-tbody').addEventListener('click', (e) => {
+  document.getElementById('employee-tbody').addEventListener('click', async (e) => {
     const btn = e.target.closest('.edit-btn');
     if (!btn) return;
-    let emp;
-    try { emp = JSON.parse(btn.dataset.employee); } catch {
-      showToast('Could not open employee. Please refresh.');
-      return;
+    btn.disabled = true;
+    try {
+      const body = await fetchEmployee(btn.dataset.id);
+      if (!body) return; // authFetch handled logout
+      const form = document.getElementById('edit-form');
+      prefillEditForm(body.data);
+      hideModalError('edit-error');
+      form.querySelector('[name="salary"]').classList.remove('is-invalid');
+      form.querySelector('[type="submit"]').disabled = false;
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('edit-modal')).show();
+    } catch {
+      showToast('Could not load employee. Please refresh.');
+    } finally {
+      btn.disabled = false;
     }
-    const form = document.getElementById('edit-form');
-    prefillEditForm(emp);
-    hideModalError('edit-error');
-    form.querySelector('[name="salary"]').classList.remove('is-invalid');
-    form.querySelector('[type="submit"]').disabled = false;
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('edit-modal')).show();
   });
 
   // Department → cascade job title options (both modals)
