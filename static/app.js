@@ -66,8 +66,8 @@ async function login(email, password) {
       showApp();
       loadAll();
     } else {
-      const msg = body.error_list?.[0] ?? 'Invalid credentials.';
-      errorEl.textContent = typeof msg === 'object' ? Object.values(msg)[0] : msg;
+      const errors = body.error_list?.length ? body.error_list.map(normalizeError) : ['Invalid credentials.'];
+      errorEl.textContent = errors.join(' ');
       errorEl.classList.remove('d-none');
     }
   } catch {
@@ -436,10 +436,20 @@ function getFormData(form) {
   return data;
 }
 
+function normalizeError(err) {
+  return typeof err === 'object' ? Object.values(err)[0] : err;
+}
+
 function showModalError(errorElId, errorList) {
-  const el  = document.getElementById(errorElId);
-  const msg = errorList?.[0] ?? 'Something went wrong.';
-  el.textContent = typeof msg === 'object' ? Object.values(msg)[0] : msg;
+  const el = document.getElementById(errorElId);
+  const errors = errorList?.length ? errorList.map(normalizeError) : ['Something went wrong.'];
+  if (errors.length === 1) {
+    el.textContent = errors[0];
+  } else {
+    el.innerHTML = '<ul class="mb-0 ps-3">' +
+      errors.map((e) => `<li>${escapeHtml(e)}</li>`).join('') +
+      '</ul>';
+  }
   el.classList.remove('d-none');
 }
 
