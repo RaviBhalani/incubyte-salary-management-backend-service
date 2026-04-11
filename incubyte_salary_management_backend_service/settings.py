@@ -163,14 +163,3 @@ STORAGES = {
 """
 Static Files Settings End.
 """
-
-
-"""
-Teams Integration Settings Start
-"""
-
-TEAMS_WEBHOOK_URL = get_env_var("TEAMS_WEBHOOK_URL")
-
-"""
-Teams Integration Settings End
-"""
