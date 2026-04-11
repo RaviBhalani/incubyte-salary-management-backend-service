@@ -178,7 +178,7 @@ async function updateEmployee(id, data) {
 
 const currentFilters = {
   search: '', job_title: '', department: '', country: '',
-  salary_min: '', salary_max: '', page: 1,
+  salary_min: '', salary_max: '', page: 1, page_size: 25,
 };
 
 function buildQueryString(filters) {
@@ -251,20 +251,14 @@ function renderEmployeeTable(employees) {
 // ── Pagination ────────────────────────────
 
 function renderPagination(count, currentPage) {
-  const section  = document.getElementById('pagination-section');
-  const infoEl   = document.getElementById('pagination-info');
-  const prevBtn  = document.getElementById('prev-page-btn');
-  const nextBtn  = document.getElementById('next-page-btn');
+  const infoEl  = document.getElementById('pagination-info');
+  const prevBtn = document.getElementById('prev-page-btn');
+  const nextBtn = document.getElementById('next-page-btn');
 
-  if (count === 0) {
-    section.style.display = 'none';
-    return;
-  }
-
-  section.style.display  = '';
-  infoEl.textContent     = `Page ${currentPage} · ${count.toLocaleString()} total employees`;
-  prevBtn.disabled       = currentPage === 1;
-  nextBtn.disabled       = currentPage * PAGE_SIZE >= count;
+  infoEl.textContent = `Page ${currentPage} · ${count.toLocaleString()} total employees`;
+  prevBtn.disabled                                             = currentPage === 1;
+  nextBtn.disabled                                             = count === 0 || currentPage * currentFilters.page_size >= count;
+  document.getElementById('page-size-select').disabled        = count === 0;
 }
 
 // ── Escape helpers ────────────────────────
@@ -503,6 +497,13 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAll();
     }, 400),
   );
+
+  // Rows per page
+  document.getElementById('page-size-select').addEventListener('change', () => {
+    currentFilters.page_size = Number(document.getElementById('page-size-select').value);
+    currentFilters.page      = 1;
+    loadAll();
+  });
 
   // Pagination
   document.getElementById('prev-page-btn').addEventListener('click', () => {
