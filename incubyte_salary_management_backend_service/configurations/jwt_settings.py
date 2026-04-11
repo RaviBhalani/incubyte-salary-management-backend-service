@@ -35,7 +35,7 @@ else:
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(**access_token_params),
     "REFRESH_TOKEN_LIFETIME": timedelta(**refresh_token_params),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "RS256",
