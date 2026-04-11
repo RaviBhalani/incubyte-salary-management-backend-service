@@ -1,0 +1,363 @@
+{
+  "info": {
+    "_postman_id": "890fa43d-a853-47ce-b30f-f48b024c596b",
+    "name": "Incubyte Assignment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53748884",
+    "_collection_link": "https://go.postman.co/collection/53748884-890fa43d-a853-47ce-b30f-f48b024c596b?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "pm.environment.set(\"access\", response.access);\r",
+                  "pm.environment.set(\"refresh\", response.refresh);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@gmail.com\",\n    \"password\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/{{api_prefix}}/login/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "login",
+                ""
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "Token Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh\": \"{{refresh}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/{{api_prefix}}/token-refresh/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "token-refresh",
+                ""
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employee",
+      "item": [
+        {
+          "name": "Create  Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Jon Snow\",\r\n    \"job_title\": \"SOFTWARE_ENGINEER\",\r\n    \"department\": \"ENGINEERING\",\r\n    \"salary\": 100000,\r\n    \"joining_date\": \"2024-01-15\",\r\n    \"country\": \"INDIA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/{{api_prefix}}/employee/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "employee",
+                ""
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST '{{url}}/{{api_prefix}}/employee/' --header 'Authorization: Bearer {{access}}' --header 'Content-Type: application/json' --data-raw '{\"employee_id\":\"EMP001\",\"name\":\"John Doe\",\"email\":\"john.doe@example.com\",\"job_title\":\"Software Engineer\",\"department\":\"Engineering\",\"salary\":75000,\"joining_date\":\"2024-01-15\",\"country\":\"India\"}'"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"John Cena\",\r\n    \"job_title\": \"SOFTWARE_ENGINEER\",\r\n    \"department\": \"ENGINEERING\",\r\n    \"salary\": 100000,\r\n    \"joining_date\": \"2026-01-15\",\r\n    \"country\": \"INDIA\",\r\n    \"is_active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/{{api_prefix}}/employee/1/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "employee",
+                "1",
+                ""
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST '{{url}}/{{api_prefix}}/employee/' --header 'Authorization: Bearer {{access}}' --header 'Content-Type: application/json' --data-raw '{\"employee_id\":\"EMP001\",\"name\":\"John Doe\",\"email\":\"john.doe@example.com\",\"job_title\":\"Software Engineer\",\"department\":\"Engineering\",\"salary\":75000,\"joining_date\":\"2024-01-15\",\"country\":\"India\"}'"
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Employee",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/{{api_prefix}}/employee/2/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "employee",
+                "2",
+                ""
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST '{{url}}/{{api_prefix}}/employee/' --header 'Authorization: Bearer {{access}}' --header 'Content-Type: application/json' --data-raw '{\"employee_id\":\"EMP001\",\"name\":\"John Doe\",\"email\":\"john.doe@example.com\",\"job_title\":\"Software Engineer\",\"department\":\"Engineering\",\"salary\":75000,\"joining_date\":\"2024-01-15\",\"country\":\"India\"}'"
+          },
+          "response": []
+        },
+        {
+          "name": "List Employee",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/{{api_prefix}}/employee/?search=emp&page_size=25&page=1&job_title=SOFTWARE_ENGINEER&department=ENGINEERING&salary_min=15000&salary_max=30000&country=INDIA",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "employee",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "emp",
+                  "description": "Optional"
+                },
+                {
+                  "key": "page_size",
+                  "value": "25",
+                  "description": "Optional"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Optional"
+                },
+                {
+                  "key": "job_title",
+                  "value": "SOFTWARE_ENGINEER",
+                  "description": "Optional"
+                },
+                {
+                  "key": "department",
+                  "value": "ENGINEERING",
+                  "description": "Optional"
+                },
+                {
+                  "key": "salary_min",
+                  "value": "15000",
+                  "description": "Optional"
+                },
+                {
+                  "key": "salary_max",
+                  "value": "30000",
+                  "description": "Optional"
+                },
+                {
+                  "key": "country",
+                  "value": "INDIA",
+                  "description": "Optional"
+                }
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST '{{url}}/{{api_prefix}}/employee/' --header 'Authorization: Bearer {{access}}' --header 'Content-Type: application/json' --data-raw '{\"employee_id\":\"EMP001\",\"name\":\"John Doe\",\"email\":\"john.doe@example.com\",\"job_title\":\"Software Engineer\",\"department\":\"Engineering\",\"salary\":75000,\"joining_date\":\"2024-01-15\",\"country\":\"India\"}'"
+          },
+          "response": []
+        },
+        {
+          "name": "Salary Insights",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/{{api_prefix}}/employee/salary-insights/?job_title=SOFTWARE_ENGINEER&department=ENGINEERING&salary_min=15000&salary_max=30000000&country=INDIA",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "{{api_prefix}}",
+                "employee",
+                "salary-insights",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "job_title",
+                  "value": "SOFTWARE_ENGINEER",
+                  "description": "Optional"
+                },
+                {
+                  "key": "department",
+                  "value": "ENGINEERING",
+                  "description": "Optional"
+                },
+                {
+                  "key": "salary_min",
+                  "value": "15000",
+                  "description": "Optional"
+                },
+                {
+                  "key": "salary_max",
+                  "value": "30000000",
+                  "description": "Optional"
+                },
+                {
+                  "key": "country",
+                  "value": "INDIA",
+                  "description": "Optional"
+                }
+              ]
+            },
+            "description": "Generated from cURL: curl --request POST '{{url}}/{{api_prefix}}/employee/' --header 'Authorization: Bearer {{access}}' --header 'Content-Type: application/json' --data-raw '{\"employee_id\":\"EMP001\",\"name\":\"John Doe\",\"email\":\"john.doe@example.com\",\"job_title\":\"Software Engineer\",\"department\":\"Engineering\",\"salary\":75000,\"joining_date\":\"2024-01-15\",\"country\":\"India\"}'"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
