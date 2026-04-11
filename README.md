@@ -95,7 +95,7 @@ Defaults are already provided and work out of the box. Fill in any blank values 
 ./run_server.sh local
 ```
 
-This tears down any existing containers, rebuilds the image, runs migrations, and starts the server.
+This tears down any existing containers, rebuilds the image, and starts the server. Migrations run automatically at container startup via `server.sh`.
 
 The app will be available at `http://localhost:8000`.
 
@@ -115,8 +115,8 @@ docker exec incubyte_salary_management_backend_service_api <command>
 | `pytest apps/user/tests/api/test_login_api.py` | Run a specific test file |
 | `pytest -k "test_login"` | Run tests matching a name pattern |
 | `python manage.py create_superuser --email <email> --password <password> --first-name <first> --last-name <last>` | Create a superuser. Skips silently if a user with that email already exists. |
-| `python manage.py seed_employees` | Bulk-create employees (idempotent — picks up from current max employee number). Safe to run repeatedly. |
-| `python manage.py generate_name_files` | Regenerate `first_names.txt` and `last_names.txt` source files used by the seed command (uses Faker, `en_IN` locale) |
+| `python manage.py seed_employees` | Bulk-create employees locally (idempotent — picks up from current max employee number). Non-local environments are seeded automatically via migration `0011`. |
+| `python manage.py generate_name_files` | Regenerate `first_names.txt` and `last_names.txt` used by `seed_employees` (Faker, `en_IN` locale) |
 
 ---
 
@@ -130,6 +130,8 @@ Several settings differ between local and non-local environments:
 | RSA keys | Filenames in `.encryption_keys/` | Full PEM content in `RSA_PRIVATE_KEY` / `RSA_PUBLIC_KEY` env vars (use `\n` for newlines) |
 | Static files | Served by `runserver` | Collected via `collectstatic` at startup, served by WhiteNoise |
 | Web server | Django `runserver` | Gunicorn (2 workers) |
+
+**Superuser:** Set `SUPERUSER_EMAIL`, `SUPERUSER_PASSWORD`, `SUPERUSER_FIRST_NAME`, and `SUPERUSER_LAST_NAME` env vars before first deploy. Migration `0003` picks these up automatically and creates the superuser. If any var is missing the step is skipped silently.
 
 For non-local deployments, copy `.envs/api.env` as a reference and populate all required values via your platform's secret management.
 

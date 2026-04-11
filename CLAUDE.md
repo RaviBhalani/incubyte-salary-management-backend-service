@@ -77,8 +77,9 @@ The `User` table is the standard Django auth `User` (already in `apps/user/`). `
 ### Features implemented
 1. **Employee CRUD** — `POST /api/v1/employee/`, `GET /api/v1/employee/`, `GET /api/v1/employee/<pk>/`, `PATCH /api/v1/employee/<pk>/`. No hard-delete; soft-delete via `is_active=False`.
 2. **Salary insights** — `GET /api/v1/employee/salary-insights/` returns `min_salary`, `max_salary`, `avg_salary` (rounded), `total_employees`. Supports all employee filters.
-3. **Seed script** — `python manage.py seed_employees` bulk-creates 10,000 employees using `bulk_create` (batch size 500). Safe to run repeatedly — picks up from the current max employee number. Reads names from `apps/employee/data/first_names.txt` and `last_names.txt`.
-4. **Generate name files** — `python manage.py generate_name_files` creates the name text files using Faker (`en_IN` locale).
+3. **Employee seed** — `apps/employee/migrations/0011_seed_employees.py` bulk-creates 10,000 employees automatically on first migrate using inline Faker name generation (no file I/O). Also available as `python manage.py seed_employees` for local use (reads from `first_names.txt` / `last_names.txt`).
+4. **Generate name files** — `python manage.py generate_name_files` creates name source files using Faker (`en_IN` locale) for use by the seed management command.
+5. **Superuser bootstrap** — `apps/user/migrations/0003_create_superusers.py` creates a superuser on first migrate from `SUPERUSER_EMAIL`, `SUPERUSER_PASSWORD`, `SUPERUSER_FIRST_NAME`, `SUPERUSER_LAST_NAME` env vars. Skips silently if any var is missing or user already exists.
 
 ## Architecture
 
@@ -183,12 +184,19 @@ A minimal SPA served from Django itself — no Node.js, no build step.
 
 **Management commands**:
 ```bash
-# Seed 10,000 employees (idempotent — picks up from max employee number)
+# Seed employees locally (idempotent — picks up from max employee number)
+# Non-local environments are seeded automatically via migration 0011
 docker exec incubyte_salary_management_backend_service_api python manage.py seed_employees
 
-# Regenerate name source files (first_names.txt / last_names.txt)
+# Regenerate name source files used by seed_employees (first_names.txt / last_names.txt)
 docker exec incubyte_salary_management_backend_service_api python manage.py generate_name_files
+
+# Create a superuser (skips silently if email already exists)
+docker exec incubyte_salary_management_backend_service_api python manage.py create_superuser \
+    --email <email> --password <password> --first-name <first> --last-name <last>
 ```
+
+**Startup sequence** (`server.sh`): migrations run automatically (`migrate --noinput`) on every container start before the server launches. This includes the seed and superuser migrations on first deploy.
 
 ### Testing
 
