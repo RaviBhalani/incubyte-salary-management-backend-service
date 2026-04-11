@@ -5,6 +5,7 @@
 const ENDPOINTS = {
   login:          '/api/v1/login/',
   refresh:        '/api/v1/token-refresh/',
+  logout:         '/api/v1/logout/',
   employees:      '/api/v1/employee/',
   salaryInsights: '/api/v1/employee/salary-insights/',
 };
@@ -79,7 +80,16 @@ async function login(email, password) {
 
 // ── logout ────────────────────────────────
 
-function logout() {
+async function logout() {
+  try {
+    await fetch(ENDPOINTS.logout, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ refresh: getRefreshToken() }),
+    });
+  } catch {
+    // best-effort — always clear local tokens regardless of server response
+  }
   clearTokens();
   document.getElementById('login-error').classList.add('d-none');
   document.getElementById('login-error').textContent = '';
