@@ -66,8 +66,8 @@ async function login(email, password) {
       showApp();
       loadAll();
     } else {
-      const msg = body.error_list?.[0] ?? 'Invalid credentials.';
-      errorEl.textContent = typeof msg === 'object' ? Object.values(msg)[0] : msg;
+      const errors = body.error_list?.length ? body.error_list.map(normalizeError) : ['Invalid credentials.'];
+      errorEl.textContent = errors.join(' ');
       errorEl.classList.remove('d-none');
     }
   } catch {
@@ -161,6 +161,13 @@ async function fetchEmployees(params) {
 
 async function fetchSalaryInsights(params) {
   const res = await authFetch(`${ENDPOINTS.salaryInsights}?${buildQueryString(params)}`);
+  if (!res) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function fetchEmployee(id) {
+  const res = await authFetch(`${ENDPOINTS.employees}${id}/`);
   if (!res) return null;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
@@ -413,6 +420,8 @@ function resetFilters() {
     salary_min: '', salary_max: '', page: 1,
   });
   populateFilterJobTitles('');
+  const maxEl = document.getElementById('filter-salary-max');
+  maxEl.nextElementSibling.textContent = '10,000 \u2013 1,000,000';
   ['filter-salary-min', 'filter-salary-max'].forEach(
     (id) => document.getElementById(id).classList.remove('is-invalid'),
   );
@@ -421,16 +430,24 @@ function resetFilters() {
 
 function getFormData(form) {
   const data = {};
-  new FormData(form).forEach((value, key) => {
-    if (value !== '') data[key] = value;
-  });
+  new FormData(form).forEach((value, key) => { data[key] = value; });
   return data;
 }
 
+function normalizeError(err) {
+  return typeof err === 'object' ? Object.values(err)[0] : err;
+}
+
 function showModalError(errorElId, errorList) {
-  const el  = document.getElementById(errorElId);
-  const msg = errorList?.[0] ?? 'Something went wrong.';
-  el.textContent = typeof msg === 'object' ? Object.values(msg)[0] : msg;
+  const el = document.getElementById(errorElId);
+  const errors = errorList?.length ? errorList.map(normalizeError) : ['Something went wrong.'];
+  if (errors.length === 1) {
+    el.textContent = errors[0];
+  } else {
+    el.innerHTML = '<ul class="mb-0 ps-3">' +
+      errors.map((e) => `<li>${escapeHtml(e)}</li>`).join('') +
+      '</ul>';
+  }
   el.classList.remove('d-none');
 }
 
@@ -491,14 +508,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Logout
   document.getElementById('logout-btn').addEventListener('click', logout);
 
-  // Salary range validation
+  // Salary range validation (individual range + cross-validation)
   const updateApplyBtn = () => {
-    document.getElementById('apply-filters-btn').disabled =
-      document.getElementById('filter-salary-min').classList.contains('is-invalid') ||
-      document.getElementById('filter-salary-max').classList.contains('is-invalid');
+    const minEl = document.getElementById('filter-salary-min');
+    const maxEl = document.getElementById('filter-salary-max');
+    const maxFeedbackEl = maxEl.nextElementSibling;
+
+    const minInvalid = validateSalaryInput(minEl);
+    const maxInvalid = validateSalaryInput(maxEl);
+
+    // Reset cross-validation feedback before re-evaluating
+    maxFeedbackEl.textContent = '10,000 \u2013 1,000,000';
+
+    // Cross-validation: both filled, both in range, but min > max
+    const crossInvalid =
+      minEl.value !== '' && maxEl.value !== '' &&
+      !minInvalid && !maxInvalid &&
+      Number(minEl.value) > Number(maxEl.value);
+
+    if (crossInvalid) {
+      maxEl.classList.add('is-invalid');
+      maxFeedbackEl.textContent = 'Must be \u2265 Min Salary';
+    }
+
+    document.getElementById('apply-filters-btn').disabled = minInvalid || maxInvalid || crossInvalid;
   };
-  document.getElementById('filter-salary-min').addEventListener('input', (e) => { validateSalaryInput(e.target); updateApplyBtn(); });
-  document.getElementById('filter-salary-max').addEventListener('input', (e) => { validateSalaryInput(e.target); updateApplyBtn(); });
+  document.getElementById('filter-salary-min').addEventListener('input', updateApplyBtn);
+  document.getElementById('filter-salary-max').addEventListener('input', updateApplyBtn);
 
   // Modal salary validation
   ['create-form', 'edit-form'].forEach((formId) => {
@@ -575,25 +611,37 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('create-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideModalError('create-error');
-    const body = await createEmployee(getFormData(e.target));
-    if (!body) return; // authFetch handled logout
-    if (body.error_list?.length) { showModalError('create-error', body.error_list); return; }
-    bootstrap.Modal.getInstance(document.getElementById('create-modal')).hide();
-    showToast('Employee created successfully.');
-    loadAll();
+    const submitBtn = e.target.querySelector('[type="submit"]');
+    submitBtn.disabled = true;
+    try {
+      const body = await createEmployee(getFormData(e.target));
+      if (!body) return; // authFetch handled logout
+      if (body.error_list?.length) { showModalError('create-error', body.error_list); return; }
+      bootstrap.Modal.getInstance(document.getElementById('create-modal')).hide();
+      showToast('Employee created successfully.');
+      loadAll();
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 
   // Edit form submit
   document.getElementById('edit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideModalError('edit-error');
-    const id   = document.getElementById('edit-employee-id').value;
-    const body = await updateEmployee(id, getFormData(e.target));
-    if (!body) return;
-    if (body.error_list?.length) { showModalError('edit-error', body.error_list); return; }
-    bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
-    showToast('Employee updated successfully.');
-    loadAll();
+    const submitBtn = e.target.querySelector('[type="submit"]');
+    submitBtn.disabled = true;
+    try {
+      const id   = document.getElementById('edit-employee-id').value;
+      const body = await updateEmployee(id, getFormData(e.target));
+      if (!body) return;
+      if (body.error_list?.length) { showModalError('edit-error', body.error_list); return; }
+      bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+      showToast('Employee updated successfully.');
+      loadAll();
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 
   // Deactivate button — show confirmation modal
@@ -611,32 +659,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Confirm deactivation
   document.getElementById('confirm-deactivate-btn').addEventListener('click', async () => {
-    const id   = document.getElementById('edit-employee-id').value;
-    const body = await updateEmployee(id, { is_active: false });
-    if (!body) return; // 401 — already logged out
-    if (body.error_list?.length) { showModalError('deactivate-error', body.error_list); return; }
-    hideModalError('deactivate-error');
-    bootstrap.Modal.getInstance(document.getElementById('deactivate-modal')).hide();
-    bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
-    showToast('Employee deactivated successfully.');
-    loadAll();
+    const confirmBtn = document.getElementById('confirm-deactivate-btn');
+    confirmBtn.disabled = true;
+    try {
+      const id   = document.getElementById('edit-employee-id').value;
+      const body = await updateEmployee(id, { is_active: false });
+      if (!body) return; // 401 — already logged out
+      if (body.error_list?.length) { showModalError('deactivate-error', body.error_list); return; }
+      hideModalError('deactivate-error');
+      bootstrap.Modal.getInstance(document.getElementById('deactivate-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('edit-modal')).hide();
+      showToast('Employee deactivated successfully.');
+      loadAll();
+    } finally {
+      confirmBtn.disabled = false;
+    }
   });
 
   // Edit button — delegated on tbody
-  document.getElementById('employee-tbody').addEventListener('click', (e) => {
+  document.getElementById('employee-tbody').addEventListener('click', async (e) => {
     const btn = e.target.closest('.edit-btn');
     if (!btn) return;
-    let emp;
-    try { emp = JSON.parse(btn.dataset.employee); } catch {
-      showToast('Could not open employee. Please refresh.');
-      return;
+    btn.disabled = true;
+    try {
+      const body = await fetchEmployee(btn.dataset.id);
+      if (!body) return; // authFetch handled logout
+      const form = document.getElementById('edit-form');
+      prefillEditForm(body.data);
+      hideModalError('edit-error');
+      form.querySelector('[name="salary"]').classList.remove('is-invalid');
+      form.querySelector('[type="submit"]').disabled = false;
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('edit-modal')).show();
+    } catch {
+      showToast('Could not load employee. Please refresh.');
+    } finally {
+      btn.disabled = false;
     }
-    const form = document.getElementById('edit-form');
-    prefillEditForm(emp);
-    hideModalError('edit-error');
-    form.querySelector('[name="salary"]').classList.remove('is-invalid');
-    form.querySelector('[type="submit"]').disabled = false;
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('edit-modal')).show();
   });
 
   // Department → cascade job title options (both modals)

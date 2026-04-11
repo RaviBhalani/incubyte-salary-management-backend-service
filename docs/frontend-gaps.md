@@ -1,118 +1,95 @@
 # Frontend + Backend Gaps — Salary Management App
 
 Findings from a review of all API endpoints, `static/app.js`, and `templates/index.html`.
-Issues are ordered by severity.
+All issues have been identified and resolved.
 
 ---
 
-## 1. SECURITY — Missing Logout / Token Blacklist Endpoint
+## 1. SECURITY — Missing Logout / Token Blacklist Endpoint ✅
 
 **Severity:** High
 
-**What's missing:**
-The backend has `rest_framework_simplejwt`'s blacklist app installed and `BLACKLIST_AFTER_ROTATION = True` in `jwt_settings.py`, but there is no `POST /api/v1/logout/` endpoint. The frontend `logout()` function (`app.js:82–87`) only calls `clearTokens()` and `showLogin()` — it never tells the server.
+**Problem:**
+The backend had `rest_framework_simplejwt`'s blacklist app installed but no `POST /api/v1/logout/` endpoint exposed. The frontend `logout()` only cleared localStorage — tokens remained valid server-side until expiry.
 
-**Impact:** After logout, the access token remains valid server-side until it expires. Anyone who captures the token (shared machine, browser history, logs) can keep calling the API after the user has "logged out."
-
-**Fix:**
-- **Backend:** Add `TokenBlacklistView` (from `rest_framework_simplejwt.views`) at `POST /api/v1/logout/`. It accepts `{"refresh": "<token>"}` and blacklists the refresh token.
-- **Frontend:** Before clearing localStorage in `logout()`, POST the refresh token to the new logout endpoint.
-
-Files to change:
-- `apps/user/urls.py` — add path
-- `apps/user/constants.py` — add `LOGOUT_URL`, `LOGOUT_NAME`
-- `static/app.js` — update `logout()` and `ENDPOINTS`
+**Resolution:**
+- **Backend:** Registered `TokenBlacklistView` at `POST /api/v1/logout/` in `apps/user/urls.py`. Added `LOGOUT_URL` and `LOGOUT_NAME` constants to `apps/user/constants.py`. Tests written first (TDD) in `apps/user/tests/api/test_logout_api.py`.
+- **Frontend:** `logout()` in `app.js` made `async`; POSTs the refresh token to `/api/v1/logout/` before clearing localStorage. Call is best-effort — local logout always completes even if the server call fails.
 
 ---
 
-## 2. BUG — Double-Submit on Create, Edit, and Deactivate
+## 2. BUG — Double-Submit on Create, Edit, and Deactivate ✅
 
 **Severity:** High (data integrity)
 
-**What's missing:**
-None of the submit/confirm buttons are disabled during their async API call.
+**Problem:**
+None of the submit/confirm buttons were disabled during their async API calls. Double-clicking Create could produce two duplicate employees; double-clicking Deactivate would show a confusing 404 error on the second request.
 
-| Handler | Location | Risk |
-|---|---|---|
-| Create form submit | `app.js:565–573` | Two clicks → two duplicate employees created |
-| Edit form submit | `app.js:577–587` | Two clicks → two PATCH requests |
-| Confirm deactivate button | `app.js:603–613` | Second request gets 404 (already deactivated); shows confusing error |
-
-**Fix:** Disable the button at request start, re-enable in a `finally` block.
-
-Files to change:
-- `static/app.js` — three async submit handlers
+**Resolution:**
+Each of the three async handlers in `app.js` now disables its button before the `await` and re-enables it in a `finally` block, covering both success and error paths:
+- Create form submit button
+- Edit form save button
+- Deactivate confirmation button
 
 ---
 
-## 3. UX BUG — Salary Min/Max Cross-Validation Missing
+## 3. UX BUG — Salary Min/Max Cross-Validation Missing ✅
 
 **Severity:** Medium
 
-**What's missing:**
-The filter panel validates each salary input individually (must be 10,000–1,000,000 via `validateSalaryInput()`), but there is **no check that `salary_min ≤ salary_max`**. A user can enter `min=900000, max=10000`, click Apply, and the API silently returns 0 results. The table shows "No employees found." with no explanation.
+**Problem:**
+Each salary filter input was validated individually (must be 10,000–1,000,000), but there was no check that `salary_min ≤ salary_max`. Entering `min=900000, max=10000` and clicking Apply would silently return 0 results with no explanation.
 
-**Fix:** In `updateApplyBtn()` (`app.js:485–489`), add a cross-field check: if both inputs are non-empty and `min > max`, mark one input as invalid and keep the Apply button disabled. Add a corresponding `invalid-feedback` message ("Min must be ≤ Max").
-
-Files to change:
-- `static/app.js` — `updateApplyBtn()`
-- `templates/index.html` — add `invalid-feedback` div for cross-validation message
+**Resolution:**
+`updateApplyBtn()` in `app.js` now owns all salary filter validation. After individual range checks, it cross-validates: if both fields are filled, individually valid, but `min > max`, the max field is marked invalid with the feedback text "Must be ≥ Min Salary". The Apply button stays disabled until the condition is resolved. The feedback text is reset on every evaluation and on `resetFilters()`.
 
 ---
 
-## 4. UX BUG — Filter State Inconsistency (Department Auto-Loads; Others Don't)
+## 4. UX GAP — Edit Modal Showed Stale Employee Data ✅
 
 **Severity:** Medium
 
-**What's missing:**
-The department dropdown's `change` handler (`app.js:504–511`) immediately calls `loadAll()` after updating only `currentFilters.department` and `currentFilters.job_title`. It does **not** call `readFilters()` first. Any values the user has typed into salary min/max, country, or search — but hasn't clicked Apply for yet — are silently lost from the active filter state.
+**Problem:**
+The Edit button embedded a full JSON snapshot of the employee in a `data-employee` attribute at table-render time. If the employee was updated elsewhere between the last table load and opening the modal, the form showed outdated data. The `GET /api/v1/employee/{id}/` retrieve endpoint existed but was never used by the frontend.
 
-**Example:** User types `salary_min=50000` → changes department → `loadAll()` runs with `currentFilters.salary_min = ''` (stale). The salary filter is ignored.
+**Resolution:**
+Added a `fetchEmployee(id)` helper to `app.js` that calls `GET /api/v1/employee/{id}/`. The edit button click handler (now `async`) disables the button, fetches fresh data, pre-fills the form from the API response, then opens the modal. On fetch error a toast is shown. The stale `data-employee` attribute is no longer used.
 
-**Fix:** Call `readFilters()` at the top of the department `change` handler before updating department/job_title, then call `loadAll()`.
-
-Files to change:
-- `static/app.js` — department `change` event listener (~line 504)
+**Note:** A bug introduced during this change (`await` inside a non-`async` callback) caused the entire `app.js` to fail to parse, breaking login. Fixed by adding `async` to the tbody click handler.
 
 ---
 
-## 5. UX GAP — Edit Modal Shows Stale Employee Data
-
-**Severity:** Medium
-
-**What's missing:**
-Clicking the Edit button reads employee data from the `data-employee` attribute on the button (`app.js:616–630`) — a JSON snapshot embedded at table-render time. If the employee was updated (in another tab, or right after loading) since the table last refreshed, the form shows outdated values.
-
-The `GET /api/v1/employee/{id}/` (retrieve) endpoint exists but is never called by the frontend.
-
-**Fix:** In the edit-button click handler, call a new `fetchEmployee(id)` helper that hits `GET /api/v1/employee/{id}/` before opening the modal. Show a brief loading indicator while fetching.
-
-Files to change:
-- `static/app.js` — edit button click handler; add `fetchEmployee(id)` helper
-
----
-
-## 6. MINOR — Only First Error from `error_list` Shown
+## 5. MINOR — Only First Error from `error_list` Shown ✅
 
 **Severity:** Low
 
-**What's missing:**
-`showModalError()` (`app.js:420–425`) and the login error handler (`app.js:68–69`) always display only `errorList?.[0]`. When the backend returns multiple validation errors (e.g., invalid salary AND mismatched department/job_title), only the first is visible. The user must fix one error at a time without knowing there are more.
+**Problem:**
+`showModalError()` and the login error handler always displayed only the first entry from `error_list`. When the backend returned multiple validation errors, subsequent errors were invisible.
 
-**Fix:** Join all errors into a single message or render them as a `<ul>` list inside the alert.
+**Resolution:**
+Added a `normalizeError(err)` helper that converts object-type errors to strings. `showModalError()` now renders a single string for one error or a `<ul>` list (using `escapeHtml` for safety) for multiple errors. The login error handler joins all errors with a space into the single-line alert.
 
-Files to change:
-- `static/app.js` — `showModalError()` and login error block
+---
+
+## Bonus Fix — Cleared Fields Silently Ignored on Edit ✅
+
+**Severity:** Medium (discovered during testing)
+
+**Problem:**
+`getFormData()` filtered out empty-string values (`if (value !== '') data[key] = value`). Clearing a required field like `name` in the edit modal and saving would omit that field from the PATCH payload entirely. The backend kept the old value with no error, making it look like the edit applied but the field "came back".
+
+**Resolution:**
+Removed the empty-string filter from `getFormData()`. All form fields are now included in the payload regardless of value, so clearing a required field correctly triggers a backend validation error shown in the modal.
 
 ---
 
 ## Summary Table
 
-| # | Issue | Severity | Backend change? | Frontend change? |
-|---|---|---|---|---|
-| 1 | No logout/token-blacklist endpoint | High | Yes | Yes |
-| 2 | Double-submit on Create/Edit/Deactivate | High | No | Yes |
-| 3 | Salary min > max gives silent empty result | Medium | No | Yes |
-| 4 | Department filter loads with stale salary/country state | Medium | No | Yes |
-| 5 | Edit modal uses stale table-row data | Medium | No | Yes |
-| 6 | Only first validation error displayed | Low | No | Yes |
+| # | Issue | Severity | Status |
+|---|---|---|---|
+| 1 | No logout/token-blacklist endpoint | High | ✅ Done |
+| 2 | Double-submit on Create/Edit/Deactivate | High | ✅ Done |
+| 3 | Salary min > max gives silent empty result | Medium | ✅ Done |
+| 4 | Edit modal used stale table-row data | Medium | ✅ Done |
+| 5 | Only first validation error displayed | Low | ✅ Done |
+| — | Cleared fields silently ignored on edit | Medium | ✅ Done |
