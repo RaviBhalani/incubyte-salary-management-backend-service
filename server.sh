@@ -6,6 +6,9 @@ export DJANGO_SETTINGS_MODULE=incubyte_salary_management_backend_service.setting
 
 BIND_ADDRESS=${SERVER_HOST}:${SERVER_PORT}
 
+echo "Running migrations..."
+python manage.py migrate --noinput
+
 if [ "$ENVIRONMENT" = "local" ]; then
     echo "Running local development server on ${BIND_ADDRESS}"
     exec python manage.py runserver "$BIND_ADDRESS"
